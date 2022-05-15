@@ -20,7 +20,7 @@ Example Usage:
 		local isnotplayer = not UnitIsUnit(unitid, "player")
 		local spec = {}
 		for tab = 1, GetNumTalentTabs(isnotplayer) do
-			local treename, _, pointsspent = GetSpecializationInfo(tab, isnotplayer)
+			local treename, _, pointsspent = GetTalentTabInfo(tab, isnotplayer)
 			tinsert(spec, pointsspent)
 		end
 		raidTalents[UnitGUID(unitid)] = spec
@@ -77,8 +77,8 @@ local UnitIsPlayer = _G.UnitIsPlayer
 local UnitName = _G.UnitName
 local UnitExists = _G.UnitExists
 local UnitGUID = _G.UnitGUID
-local GetNumGroupMembers = _G.GetNumGroupMembers
-local GetNumSubgroupMembers = _G.GetNumSubgroupMembers
+local GetNumRaidMembers = _G.GetNumRaidMembers
+local GetNumPartyMembers = _G.GetNumPartyMembers
 local UnitIsVisible = _G.UnitIsVisible
 local UnitIsConnected = _G.UnitIsConnected
 local UnitCanAttack = _G.UnitCanAttack
@@ -92,9 +92,9 @@ end
 
 -- GuidToUnitID
 local function GuidToUnitID(guid)
-	local prefix, min, max = "raid", 1, GetNumGroupMembers()
+	local prefix, min, max = "raid", 1, GetNumRaidMembers()
 	if max == 0 then
-		prefix, min, max = "party", 0, GetNumSubgroupMembers()
+		prefix, min, max = "party", 0, GetNumPartyMembers()
 	end
 
 	-- Prioritise getting direct units first because other players targets
@@ -234,7 +234,7 @@ function lib:NotifyInspect(unit)
 	self.lastInspectName = UnitFullName(unit)
 	self.lastInspectPending = self.lastInspectPending + 1
 	local isnotplayer = not UnitIsUnit("player", unit)
-	self.lastInspectTree = GetSpecializationInfo(1, isnotplayer)		-- Talent tree names are available immediately
+	self.lastInspectTree = GetTalentTabInfo(1, isnotplayer)		-- Talent tree names are available immediately
 end
 
 -- Reset
@@ -263,15 +263,15 @@ function lib:INSPECT_TALENT_READY()
 				-- Notify of expected talent results
 				local isnotplayer = not UnitIsUnit("player", self.lastInspectName)
 				local group = GetActiveTalentGroup(isnotplayer)
-				local tree1, _, spent1 = GetSpecializationInfo(1, isnotplayer, nil, group)
+				local tree1, _, spent1 = GetTalentTabInfo(1, isnotplayer, nil, group)
 				if (tree1 ~= self.lastInspectTree) then
 					-- Expected talent tree name to be the same as it was when we triggered the NotifyInspect()
 					garbageQueue[self.lastInspectName] = guid
 					return
 				end
 
-				local tree2, _, spent2 = GetSpecializationInfo(2, isnotplayer, nil, group)
-				local tree3, _, spent3 = GetSpecializationInfo(3, isnotplayer, nil, group)
+				local tree2, _, spent2 = GetTalentTabInfo(2, isnotplayer, nil, group)
+				local tree3, _, spent3 = GetTalentTabInfo(3, isnotplayer, nil, group)
 				if ((spent1 or 0) + (spent2 or 0) + (spent3 or 0) > 0) then
 					self.events:Fire("TalentQuery_Ready", name, realm, self.lastInspectUnit)
 				else

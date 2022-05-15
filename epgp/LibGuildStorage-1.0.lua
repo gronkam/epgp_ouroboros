@@ -35,7 +35,7 @@
 -- changed.
 --
 local MAJOR_VERSION = "LibGuildStorage-1.0"
-local MINOR_VERSION = tonumber(("$Revision: 1407 $"):match("%d+")) or 0
+local MINOR_VERSION = tonumber(("$Revision: 1399 $"):match("%d+")) or 0
 
 local lib, oldMinor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
@@ -230,34 +230,8 @@ function SetState(new_state)
   end
 end
 
-local function ForceShowOffline()
-  -- We need to always show offline members in the roster otherwise this
-  -- lib won't work.
-  SetGuildRosterShowOffline(true)
-  if GuildRosterShowOfflineButton then
-    GuildRosterShowOfflineButton:SetChecked(true)
-    GuildRosterShowOfflineButton:Disable()
-  end
-end
-
-
-local function DecodeNote(note)
-  if note then
-    if note == "" then
-      return 0, 0
-    else
-      local ep, gp = string.match(note, "^(%d+),(%d+)$")
-      if ep then
-        return tonumber(ep), tonumber(gp)
-      end
-    end
-  end
-end
-
 local function Frame_OnUpdate(self, elapsed)
   debugprofilestart()
-  --ForceShowOffline()
-
   if state == "CURRENT" then
     return
   end
@@ -267,13 +241,11 @@ local function Frame_OnUpdate(self, elapsed)
     return
   end
 
-  local num_guild_members = GetNumGuildMembers(true)
-
   -- Sometimes GetNumGuildMembers returns 0. In this case return now,
   -- so that we call it again and get a proper value.
-  if num_guild_members == 0 then return end
+  if GetNumGuildMembers(true) == 0 then return end
 
-  if not index or index >= num_guild_members then
+  if not index or index >= GetNumGuildMembers(true) then
     index = 1
   end
 
@@ -287,52 +259,11 @@ local function Frame_OnUpdate(self, elapsed)
   end
 
   -- Read up to 100 members at a time.
-  local last_index = math.min(index + 100, num_guild_members)
+  local last_index = math.min(index + 100, GetNumGuildMembers(true))
   Debug("Processing from %d to %d members", index, last_index)
 
   for i = index, last_index do
-        ------------ start of outsider hack --------------------------------------------------------------
-    local name, rank, _, _, _, _, pubNote, note, _, _, class = GetGuildRosterInfo(i)    -- This line has to be replaced with the original. The followed lines has to be added 
-     
-    local extName = strmatch(pubNote, 'ext:%s-(%S+)%s-');
-    local holder
-    if extName then
-        -- the name is now the note and the external name is the new name.
-        local entry = cache[extName]
-        if not entry then
-            entry = {}
-            cache[extName] = entry
-        end
-        
-        local ep_test = DecodeNote(note)
-        if not ep_test then --current character does not contain epgp info in its note, map to the character who contains
-            holder = note
-        else
-            holder = name
-        end
-        
-        -- Mark this note as seen
-        entry.seen = true
-        if entry.note ~= holder then
-            entry.note = holder
-            local _, unitClass = UnitClass(extName)
-            entry.rank = "Outsider("..name..")"
-            entry.class = unitClass or class       -- instead of using '' when there's no "unitClass", using the "class" of the placeholderalt (don't know if this is needed with resetting "seen"-flag.  This was my first good try to avoid a bug : \epgp\ui.lua line 1203: attempt to index local 'c' (a nil value) -- local c = RAID_CLASS_COLORS[EPGP:GetClass(row.name)])
-            if initialized then
-                callbacks:Fire("GuildNoteChanged", extName, holder)
-            end
-            if entry.pending_note then
-                callbacks:Fire("InconsistentNote",
-                            extName, holder, entry.note, entry.pending_note)
-            end
-        end
-
-        if entry.pending_note then
-            GuildRosterSetOfficerNote(i, entry.pending_note)
-            entry.pending_note = nil
-        end
-    end
-    ------------ End of outsider hack ----------------------------
+    local name, rank, _, _, _, _, _, note, _, _, class = GetGuildRosterInfo(i)
     if name then
       local entry = cache[name]
       local pending = pending_note[name]
@@ -367,7 +298,7 @@ local function Frame_OnUpdate(self, elapsed)
     end
   end
   index = last_index
-  if index >= num_guild_members then
+  if index >= GetNumGuildMembers(true) then
     -- We are done, we need to clear the seen marks and delete the
     -- unmarked entries. We also fire events for removed members now.
     for name, t in pairs(cache) do
@@ -400,6 +331,5 @@ local function Frame_OnUpdate(self, elapsed)
   Debug(tostring(debugprofilestop()).."ms for LibGuildStorage:OnUpdate")
 end
 
---ForceShowOffline()
 frame:SetScript("OnUpdate", Frame_OnUpdate)
 GuildRoster()

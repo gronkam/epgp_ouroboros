@@ -1,15 +1,5 @@
 local AceGUI = LibStub("AceGUI-3.0")
 
--- Lua APIs
-local pairs, assert, type = pairs, assert, type
-
--- WoW APIs
-local CreateFrame, UIParent = CreateFrame, UIParent
-
--- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
--- List them here for Mikk's FindGlobals script
--- GLOBALS: CLOSE
-
 ----------------
 -- Main Frame --
 ----------------
@@ -20,7 +10,7 @@ local CreateFrame, UIParent = CreateFrame, UIParent
 ]]
 do
 	local Type = "Frame"
-	local Version = 9
+	local Version = 8
 
 	local FrameBackdrop = {
 		bgFile="Interface\\DialogFrame\\UI-DialogBox-Background",
@@ -77,6 +67,10 @@ do
 	local function sizereOnMouseDown(this)
 		this:GetParent():StartSizing("RIGHT")
 		AceGUI:ClearFocus()
+	end
+	
+	local function sizerOnMouseUp(this)
+		this:GetParent():StopMovingOrSizing()
 	end
 
 	local function SetTitle(self,title)
@@ -251,7 +245,7 @@ do
 		sizer_se:SetHeight(25)
 		sizer_se:EnableMouse()
 		sizer_se:SetScript("OnMouseDown",sizerseOnMouseDown)
-		sizer_se:SetScript("OnMouseUp", frameOnMouseUp)
+		sizer_se:SetScript("OnMouseUp", sizerOnMouseUp)
 		self.sizer_se = sizer_se
 
 		local line1 = sizer_se:CreateTexture(nil, "BACKGROUND")
@@ -278,7 +272,7 @@ do
 		sizer_s:SetHeight(25)
 		sizer_s:EnableMouse()
 		sizer_s:SetScript("OnMouseDown",sizersOnMouseDown)
-		sizer_s:SetScript("OnMouseUp", frameOnMouseUp)
+		sizer_s:SetScript("OnMouseUp", sizerOnMouseUp)
 		self.sizer_s = sizer_s
 		
 		local sizer_e = CreateFrame("Frame",nil,frame)
@@ -287,7 +281,7 @@ do
 		sizer_e:SetWidth(25)
 		sizer_e:EnableMouse()
 		sizer_e:SetScript("OnMouseDown",sizereOnMouseDown)
-		sizer_e:SetScript("OnMouseUp", frameOnMouseUp)
+		sizer_e:SetScript("OnMouseUp", sizerOnMouseUp)
 		self.sizer_e = sizer_e
 	
 		--Container Support

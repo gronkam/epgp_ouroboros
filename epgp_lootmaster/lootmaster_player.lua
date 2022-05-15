@@ -3,8 +3,6 @@
 ]]--
 local lm 	= LootMaster		-- Local instance of the addon
 
-local L = LibStub("AceLocale-3.0"):GetLocale("EPGPLootmaster")
-
 function LootMaster:Debug( message, verbose )
     if not self.debug then return end;
     if verbose and not self.verbose then return end;
@@ -13,7 +11,7 @@ end
 
 function LootMaster:SendCommand(command, message, target)
 	if not target then
-		return self:Print(L["Could not send command, no target specified"])
+		return self:Print("Could not send command, no target specified")
 	end;
 
     local formatted = format("%s:%s", tostring(command), tostring(message));
@@ -24,7 +22,7 @@ function LootMaster:SendCommand(command, message, target)
         self:SendCommMessage("EPGPLootMasterML", formatted, "RAID", nil, "ALERT")
         self:Debug('SendCommand(RAID): '..formatted, true)
         broadcasted = true;
-    elseif UnitInParty(target) and GetNumSubgroupMembers()>0 then
+    elseif UnitInParty(target) and GetNumPartyMembers()>0 then
         --we're in party with master looter
         self:SendCommMessage("EPGPLootMasterML", formatted, "PARTY", nil, "ALERT")
         self:Debug('SendCommand(PARTY): '..formatted, true)
@@ -60,96 +58,93 @@ function LootMaster:CommandReceived(prefix, message, distribution, sender)
 		-- Masterlooter wants to know from us if we'd like to have the item.
 		-- Lets show the gui and ask the player for input.
 
-		local itemID, gpvalue, ilevel, gpvalue2, binding, slot, quality, timeout, link, texture, gpGreed, notesAllowed, autoPassClassList, numButtons, buttons, bidsAllowed = strsplit("^", message)
+		local itemID, gpvalue, ilevel, gpvalue2, binding, slot, quality, timeout, link, texture, gpGreed, notesAllowed, autoPassClassList, numButtons, buttons = strsplit("^", message)
 
-		notesAllowed = ((tonumber(notesAllowed or 0) or 0) == 1)
-
-		bidsAllowed = ((tonumber(bidsAllowed or 0) or 0) == 1)
+    notesAllowed = ((tonumber(notesAllowed or 0) or 0) == 1)
 
 		-- local _, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(link)
-		-- Send the master loot our current gear and version number
+    -- Send the master loot our current gear and version number
 		self:SendCommand( 'GEAR', format('%s^%s^%s', itemID, self.iVersion or 0, self:GetGearByINVTYPE(slot, 'player')), sender)
 
-		autoPassClassList = LootMaster:DecodeUnlocalizedClasses(autoPassClassList or 0)
-		if autoPassClassList and binding=='pickup' then
-			-- See if we can autopass this BoP item.
-			local _, playerClass = UnitClass("player");
+    autoPassClassList = LootMaster:DecodeUnlocalizedClasses(autoPassClassList or 0)
+    if autoPassClassList and binding=='pickup' then
+        -- See if we can autopass this BoP item.
+        local _, playerClass = UnitClass("player");
 
-			if playerClass and autoPassClassList[playerClass] then
-				-- there's a non empty classList and the players class is on the list,
-				-- player is not eligible to receive this BoP item, just autopass...
-				self:Print(format(L['Autopassing %s (not eligible)'], link or 'unknown item'));
-				self:SendItemWanted(sender, itemID, LootMaster.RESPONSE.AUTOPASS)
-				return;
-			end
-		end
+        if playerClass and autoPassClassList[playerClass] then
+            -- there's a non empty classList and the players class is on the list,
+            -- player is not eligible to receive this BoP item, just autopass...
+            self:Print(format('Autopassing %s (not eligible)', link or 'unknown item'));
+            self:SendItemWanted(sender, itemID, LootMaster.RESPONSE.AUTOPASS)
+            return;
+        end
+    end
 
-		-- Parse the buttons sent by the master looter
-		numButtons = tonumber(numButtons or 0)
-		local buttonsOK = false
-		if numButtons >= 1 and buttons and buttons~='' then
-			buttons = {strsplit("*", buttons)}
-			if #buttons == numButtons then
-			  for i=1,numButtons do
-				local bResponse, bText, bIsPercentage, bGPValue, bColor, bFallback = strsplit(';', buttons[i])
-				buttons[i] = {
-				  response                = tonumber(bResponse) or 0,
-				  text                    = bText or '[empty]',
-				  gpValueIsPercentage     = (tonumber(bIsPercentage)==1),
-				  gpValue                 = tonumber(bGPValue),
-				  fallback                = bFallback,
-				  color                   = bColor or 'ffffff'
-				}
-			  end
-			  buttonsOK = true
-			end
-		end
+    -- Parse the buttons sent by the master looter
+    numButtons = tonumber(numButtons or 0)
+    local buttonsOK = false
+    if numButtons >= 1 and buttons and buttons~='' then
+        buttons = {strsplit("*", buttons)}
+        if #buttons == numButtons then
+          for i=1,numButtons do
+            local bResponse, bText, bIsPercentage, bGPValue, bColor, bFallback = strsplit(';', buttons[i])
+            buttons[i] = {
+              response                = tonumber(bResponse) or 0,
+              text                    = bText or '[empty]',
+              gpValueIsPercentage     = (tonumber(bIsPercentage)==1),
+              gpValue                 = tonumber(bGPValue),
+              fallback                = bFallback,
+              color                   = bColor or 'ffffff'
+            }
+          end
+          buttonsOK = true
+        end
+    end
 
-		-- If the master looter didn't send any buttons (prolly old version),
-		-- create the default ones.
-		if not buttonsOK then
-			-- Create the default buttons
-			numButtons = 2
-			buttons = {
-			  {response = LootMaster.RESPONSE.NEED,           text = L['Mainspec / Need']},
-			  {response = LootMaster.RESPONSE.GREED,          text = L['Offspec / Greed']}
-			}
-		end
+    -- If the master looter didn't send any buttons (prolly old version),
+    -- create the default ones.
+    if not buttonsOK then
+        -- Create the default buttons
+        numButtons = 2
+        buttons = {
+          {response = LootMaster.RESPONSE.NEED,           text = 'Mainspec / Need'},
+          {response = LootMaster.RESPONSE.GREED,          text = 'Offspec / Greed'}
+        }
+    end
 
-		if gpvalue2=='' or gpvalue2==-1 or gpvalue2=='-1' then
-			gpvalue2 = nil
-		end
+    if gpvalue2=='' or gpvalue2==-1 or gpvalue2=='-1' then
+        gpvalue2 = nil
+    end
 
-		if gpGreed=='' or gpGreed==-1 or gpGreed=='-1' then
-			gpGreed = nil
-		end
+    if gpGreed=='' or gpGreed==-1 or gpGreed=='-1' then
+        gpGreed = nil
+    end
 
-		if not self:HasLoot(link) then
-			-- add the loot to the lootlist and redraw the ui
-			tinsert( self.lootList, {
-				["lootmaster"]      = sender,
-				["link"]            = link,
-				["id"]              = itemID,
-				["notesAllowed"]    = notesAllowed,
-				["bidsAllowed"]    	= bidsAllowed,
-				["ilevel"]          = ilevel,
-				["gpvalue"]         = gpvalue,
-				["gpvalue2"]        = gpvalue2,
-				["gpvalue_greed"]   = gpGreed,
-				["binding"]         = binding,
-				["slot"]            = slot,
-				["texture"]         = texture,
-				["timeout"]         = tonumber(timeout),
-				["timeoutLeft"]     = tonumber(timeout),
-				["quality"]         = tonumber(quality),
-				["buttons"]         = buttons,
-				["numButtons"]      = numButtons
-			})
+    if not self:HasLoot(link) then
+      -- add the loot to the lootlist and redraw the ui
+      tinsert( self.lootList, {
+          ["lootmaster"]      = sender,
+          ["link"]            = link,
+          ["id"]              = itemID,
+          ["notesAllowed"]    = notesAllowed,
+          ["ilevel"]          = ilevel,
+          ["gpvalue"]         = gpvalue,
+          ["gpvalue2"]        = gpvalue2,
+          ["gpvalue_greed"]   = gpGreed,
+          ["binding"]         = binding,
+          ["slot"]            = slot,
+          ["texture"]         = texture,
+          ["timeout"]         = tonumber(timeout),
+          ["timeoutLeft"]     = tonumber(timeout),
+          ["quality"]         = tonumber(quality),
+          ["buttons"]         = buttons,
+          ["numButtons"]      = numButtons
+      })
 
-			self.lootMLCache[link] = sender;
+      self.lootMLCache[link] = sender;
 
-			self:UpdateLootUI();
-		end
+      self:UpdateLootUI();
+    end
 
   elseif command == 'GETRAIDINFO' then
 
@@ -202,136 +197,90 @@ function LootMaster:CommandReceived(prefix, message, distribution, sender)
     if self.lootMLCache[link] and self.lootMLCache[link] ~= sender then
         return self:Print(format('%s sent a message that %s has been looted, but is not lootmaster for this item (his version outdated?). Message ignored', sender, link))
     end
-    self.lootMLCache[link] = nil
+    self.lootMLCache[link] = nil;
 
     if self:RemoveLoot(link) then
-        self:UpdateLootUI()
+        self:UpdateLootUI();
     end
 
-    self:Debug('UI updated')
+    self:Debug('UI updated');
 
     if not player or not link then
         return self:Debug('!player or !link')
     end;
 
-    lootTypeID = tonumber(lootType) or LootMaster.LOOTTYPE.UNKNOWN
-    lootType = LootMaster.LOOTTYPE[lootTypeID] or LootMaster.LOOTTYPE[LootMaster.LOOTTYPE.UNKNOWN]
-    lootGP = tonumber(lootGP) or -1
+    lootTypeID = tonumber(lootType) or LootMaster.LOOTTYPE.UNKNOWN;
+    lootType = LootMaster.LOOTTYPE[lootTypeID] or LootMaster.LOOTTYPE[LootMaster.LOOTTYPE.UNKNOWN];
+    lootGP = tonumber(lootGP) or -1;
 
-    local debug = self:RegisterCTRaidTrackerLoot( player, link, lootTypeID, lootGP ) or ''
-    debug = debug .. self:RegisterHeadCountLoot( player, link, lootTypeID, lootGP ) or ''
-
-	if MRT_RaidLog~=nil then
-		debug = debug .. self:RegisterMRTLoot( player, link, lootTypeID, lootGP ) or ''
-	end
+    local debug = self:RegisterCTRaidTrackerLoot( player, link, lootTypeID, lootGP ) or '';
+    debug = debug .. self:RegisterHeadCountLoot( player, link, lootTypeID, lootGP ) or '';
 
     self:Print( format(lootType.TEXT, player or 'nil', link or 'nil', lootGP or '', debug or '') )
 	end
 end
 
-function LootMaster:RegisterMRTLoot( player, link, lootTypeID, lootGP )
-
-	local raid = MRT_RaidLog[MRT_NumOfCurrentRaid]
-	if raid==nil then
-		return ' (Unable to register in MRT; no active raid)'
-	end
-
-	local lootList = MRT_RaidLog[MRT_NumOfCurrentRaid]["Loot"]
-	if not lootList then
-        return ' (Unable to register in MRT; no lootlist available)'
-    end
-
-	local lastLoot = lootList[#lootList]
-	if not lastLoot then
-        return ' (Unable to register in MRT; last item not found)'
-    end
-
-	if tonumber(lastLoot.ItemId)~=tonumber(strmatch(link, "item:(%d+):")) then
-        return ' (Unable to register in MRT; itemID not found)'
-    end
-
-    if lastLoot.Looter~=player then
-        return ' (Unable to register in MRT; item found, candidate wrong)'
-    end
-
-	-- Everything is ok now, register the cost.
-    if not lootGP or tonumber(lootGP)<=0 then lootGP=0 end
-
-    if lootTypeID == LootMaster.LOOTTYPE.BANK then
-        lastLoot.Looter = 'bank'
-        lootGP = 0
-    elseif lootTypeID == LootMaster.LOOTTYPE.DISENCHANT then
-        lastLoot.Looter = 'disenchanted'
-        lootGP = 0
-    end
-
-    lastLoot.DKPValue = lootGP
-    return ' (Loot registered in MRT)'
-end
-
 function LootMaster:RegisterHeadCountLoot( player, link, lootTypeID, lootGP )
 
-    local _,_,itemID = strfind(link, 'Hitem:(%d+)')
-    if not itemID then return L[' (Invalid link)'] end
+    local _,_,itemID = strfind(link, 'Hitem:(%d+)');
+    if not itemID then return ' (Invalid link)' end;
 
-	local HeadCount = LibStub("AceAddon-3.0"):GetAddon("HeadCount2", true)
-	if not HeadCount then
-		return ''
-	end
+    if not HeadCount then return '' end
 
-	local Tracker = HeadCount:GetModule("RaidTracker", true)
-	if not Tracker then
-        return L[' (Unable to register in HeadCount; no raidTracker)']
+    local raidTracker = HeadCount:getRaidTracker();
+    if not raidTracker then
+        return ' (Unable to register in HeadCount; no raidTracker)'
     end
 
-	local raid = Tracker.raidListWrapper:retrieveMostRecentRaid()
-	 if not raid then
-        return L[' (Unable to register in HeadCount; no active raid)']
+    local raid = raidTracker:retrieveMostRecentRaid()
+    if not raid then
+        return ' (Unable to register in HeadCount; no active raid)'
     end
 
-	local lootList = raid.lootList
-	if not lootList then
-        return L[' (Unable to register in HeadCount; no lootlist available)']
+    local lootList = raid:getLootList()
+    if not lootList then
+        return ' (Unable to register in HeadCount; no lootlist available)'
     end
 
-	local lastLoot = lootList[#lootList]
-	if not lastLoot then
-        return L[' (Unable to register in HeadCount; last item not found)']
+    local lastLoot = lootList[#lootList]
+    if not lastLoot then
+        return ' (Unable to register in HeadCount; last item not found)'
     end
 
-    if lastLoot.itemId~=strmatch(link, "item:(%d+):") then
-        return L[' (Unable to register in HeadCount; itemID not found)']
+    if lastLoot:getItemId()~=strmatch(link, "item:(%d+):") then
+        return ' (Unable to register in HeadCount; itemID not found)'
     end
 
-    if lastLoot.player~=player then
-        return L[' (Unable to register in HeadCount; item found, candidate wrong)']
+    if lastLoot:getPlayerName()~=player then
+        return ' (Unable to register in HeadCount; item found, candidate wrong)'
     end
 
     -- Everything is ok now, register the cost.
-    if not lootGP or tonumber(lootGP)<=0 then lootGP=0 end
+
+    if not lootGP or tonumber(lootGP)<=0 then lootGP=0 end;
 
     if lootTypeID == LootMaster.LOOTTYPE.BANK then
-        lastLoot.note = L['bank']
-        lootGP = 0
+        lastLoot:setNote('bank');
+        lootGP = 0;
     elseif lootTypeID == LootMaster.LOOTTYPE.DISENCHANT then
-        lastLoot.note = L['disenchanted']
-        lootGP = 0
-    end
+        lastLoot:setNote('disenchanted');
+        lootGP = 0;
+    end;
 
-    lastLoot.cost = lootGP
-    return L[' (Loot registered in HeadCount)']
+    lastLoot:setCost(lootGP);
+    return ' (Loot registered in HeadCount)'
 end
 
 function LootMaster:RegisterCTRaidTrackerLoot( player, link, lootTypeID, lootGP )
 
-    local _,_,itemID = strfind(link, 'Hitem:(%d+)')
-    if not itemID then return L[' (Invalid link)'] end
+    local _,_,itemID = strfind(link, 'Hitem:(%d+)');
+    if not itemID then return ' (Invalid link)' end;
 
     if not CT_RaidTracker_RaidLog then return '' end
     if not CT_RaidTracker_GetCurrentRaid
             or not CT_RaidTracker_RaidLog[CT_RaidTracker_GetCurrentRaid]
             or not CT_RaidTracker_RaidLog[CT_RaidTracker_GetCurrentRaid]["Loot"] then
-        return L[' (Unable to register in CT_RaidTracker; no raid started)']
+        return ' (Unable to register in CT_RaidTracker; no raid started)'
     end
 
     for index, data in ipairs( CT_RaidTracker_RaidLog[CT_RaidTracker_GetCurrentRaid]["Loot"] ) do
@@ -340,76 +289,63 @@ function LootMaster:RegisterCTRaidTrackerLoot( player, link, lootTypeID, lootGP 
             if not lootGP or tonumber(lootGP)<=0 then lootGP=0 end;
 
             if lootTypeID == LootMaster.LOOTTYPE.BANK then
-                CT_RaidTracker_RaidLog[CT_RaidTracker_GetCurrentRaid]["Loot"][index]['player'] = L['bank'];
+                CT_RaidTracker_RaidLog[CT_RaidTracker_GetCurrentRaid]["Loot"][index]['player'] = 'bank';
                 lootGP = nil;
             elseif lootTypeID == LootMaster.LOOTTYPE.DISENCHANT then
-                CT_RaidTracker_RaidLog[CT_RaidTracker_GetCurrentRaid]["Loot"][index]['player'] = L['disenchanted'];
+                CT_RaidTracker_RaidLog[CT_RaidTracker_GetCurrentRaid]["Loot"][index]['player'] = 'disenchanted';
                 lootGP = nil;
             end;
 
             CT_RaidTracker_RaidLog[CT_RaidTracker_GetCurrentRaid]["Loot"][index]['costs'] = lootGP;
-            return L[' (Loot registered in CT_RaidTracker)']
+            return ' (Loot registered in CT_RaidTracker)'
         end
     end
 
-    return L[' (Loot not registered in CT_RaidTracker; please set it manually)']
+    return ' (Loot not registered in CT_RaidTracker; please set it manually)'
 end
 
 function LootMaster:HasLoot( link )
     for i, data in ipairs(self.lootList) do repeat
-        if not data then break end
+        if not data then break end;
         if data.link == link or data.id == link then
-            return i
+            return i;
         end
     until true end
-    return nil
+    return nil;
 end
 
 function LootMaster:GetLoot( link )
-    local index = self:HasLoot(link)
-    if not index then return nil end
+    local index = self:HasLoot(link);
+    if not index then return nil end;
+
     return self.lootList[index]
 end
 
 function LootMaster:RemoveLoot( link )
-    local index = self:HasLoot(link)
-    if not index then return false end
-    tremove(self.lootList, index)
-    return true
+    local index = self:HasLoot(link);
+    if not index then return false end;
+
+    tremove(self.lootList, index);
+
+    return true;
 end
 
-function LootMaster:SendItemWanted( lootmaster, itemLink, response, note, gpBid )
+function LootMaster:SendItemWanted( lootmaster, itemLink, response, note )
     -- Just whisper the response back to the ml.
-    self:SendCommand("WANT", format("%s^%s^%s^%s^%d", itemLink or '', response or 0, self:GetEnchantingSkill() or 0, gsub(note or '','%^',''), gpBid or 0), lootmaster)
+    self:SendCommand("WANT", format("%s^%s^%s^%s", itemLink or '', response or 0, self:GetEnchantingSkill() or 0, gsub(note or '','%^','')), lootmaster)
 end
 
 --[[ Get the enchantingSkill as number (0 if not enchanter)
 ]]--
 function LootMaster:GetEnchantingSkill()
-	if _G.GetProfessions~=nil then
-		local p1, p2 = GetProfessions()
-		if p1==nil and p2==nill then return 0 end
-		local enchNameLocalized = GetSpellInfo(7411) -- Enchanting - Apprentice
-		if not enchNameLocalized then return 0 end
-		if p1~=nil then
-			local skillName, _, skillRank = GetProfessionInfo(p1)
-			if skillName == enchNameLocalized then return skillRank end
-		end
-		if p2~=nil then
-			local skillName, _, skillRank = GetProfessionInfo(p2)
-			if skillName == enchNameLocalized then return skillRank end
-		end
-		return 0
-	end
-
-    local numSkills = GetNumSkillLines()
-    local enchNameLocalized = GetSpellInfo(7411) -- Enchanting - Apprentice
+    local numSkills = GetNumSkillLines();
+    local enchNameLocalized = GetSpellInfo(7411); -- Enchanting - Apprentice
     if not enchNameLocalized then return 0 end;
     for i=1, numSkills do
-        local skillName, _, _, skillRank = GetSkillLineInfo(i)
-        if skillName == enchNameLocalized then return skillRank end;
+        local skillName, _, _, skillRank = GetSkillLineInfo(i);
+        if skillName == enchNameLocalized then return skillRank; end;
     end
-    return 0
+    return 0;
 end
 
 --[[
@@ -417,5 +353,8 @@ end
 ]]
 function LootMaster:GetLootFrame()
 	if self.lootframe then return self.lootframe end
+
 	return 'test'
 end
+
+

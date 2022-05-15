@@ -1,13 +1,6 @@
---[[ $Id: AceGUIWidget-DropDown-Items.lua 996 2010-12-01 18:34:17Z nevcairiel $ ]]--
+--[[ $Id: AceGUIWidget-DropDown-Items.lua 808 2009-05-07 14:45:15Z ammo $ ]]--
 
 local AceGUI = LibStub("AceGUI-3.0")
-
--- Lua APIs
-local select, assert = select, assert
-
--- WoW APIs
-local PlaySound = PlaySound
-local CreateFrame = CreateFrame
 
 local function fixlevels(parent,...)
 	local i = 1
@@ -215,12 +208,6 @@ function ItemBase.Create(type)
 	return self
 end
 
--- Register a dummy LibStub library to retrieve the ItemBase, so other addons can use it.
-local IBLib = LibStub:NewLibrary("AceGUI-3.0-DropDown-ItemBase", ItemBase.version)
-if IBLib then
-	IBLib.GetItemBase = function() return ItemBase end
-end
-
 --[[
 	Template for items:
 	
@@ -323,7 +310,7 @@ end
 -- Does not close the pullout on click.
 do
 	local widgetType = "Dropdown-Item-Toggle"
-	local widgetVersion = 3
+	local widgetVersion = 2
 	
 	local function UpdateToggle(self)
 		if self.value then
@@ -342,11 +329,6 @@ do
 		local self = this.obj
 		if self.disabled then return end
 		self.value = not self.value
-		if self.value then
-			PlaySound("igMainMenuOptionCheckBoxOn")
-		else
-			PlaySound("igMainMenuOptionCheckBoxOff")
-		end
 		UpdateToggle(self)
 		self:Fire("OnValueChanged", self.value)
 	end

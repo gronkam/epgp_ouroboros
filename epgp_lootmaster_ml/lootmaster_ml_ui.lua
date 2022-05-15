@@ -5,8 +5,6 @@ local LootMaster    = LibStub("AceAddon-3.0"):GetAddon("EPGPLootMaster")
 
 local AceGUI = LibStub("AceGUI-3.0")
 
-local L = LibStub("AceLocale-3.0"):GetLocale("EPGPLootmaster")
-
 local LOOTBUTTON_MAXNUM = 10
 local LOOTBUTTON_HEIGHT = 32
 local LOOTBUTTON_PADDING = 6
@@ -16,27 +14,24 @@ local gearBgColor   = {["r"] = 0.15, ["g"] = 0.15, ["b"] = 0.15, ["a"] = 1.0 }
 local epgpColor     = {["r"] = 0.45, ["g"] = 0.45, ["b"] = 0.45, ["a"] = 1.0 }
 
 local sstScrollCols = {
-       { ["name"] = "C.",					["width"] = 20,  ["align"] = "CENTER" },
-       { ["name"] = L["Candidate"],			["width"] = 100, ["align"] = "LEFT" },
-       { ["name"] = L["Rank"],				["width"] = 100, ["align"] = "LEFT" },
-       { ["name"] = L["Response"],			["width"] = 210, ["align"] = "LEFT", 	  	["defaultsort"] = "desc", ["sort"] = "desc", ["color"] = {["r"] = 0.25, ["g"] = 1.00, ["b"] = 0.25, ["a"] = 1.0 }, ["sortnext"]=10 }, --,
-       { ["name"] = "EP",					["width"] = 50,  ["align"] = "RIGHT",   	["color"] = epgpColor},
-       { ["name"] = "GP",					["width"] = 50,  ["align"] = "RIGHT",   	["color"] = epgpColor},
-       { ["name"] = "PR",					["width"] = 60,  ["align"] = "RIGHT",   	["defaultsort"] = "asc", ["sort"] = "asc", ["sortfirst"]=10, ["sortnext"]=8, ["ident"]="PR"},
+       { ["name"] = "Кл.",	        	  ["width"] = 20,  ["align"] = "CENTER" },
+       { ["name"] = "Кандидат",		  ["width"] = 100, ["align"] = "LEFT" },
+       { ["name"] = "Ранг",     		  ["width"] = 100, ["align"] = "LEFT" },
+       { ["name"] = "Голосование",		    ["width"] = 210, ["align"] = "LEFT", 	  ["defaultsort"] = "desc", ["sort"] = "desc", ["color"] = {["r"] = 0.25, ["g"] = 1.00, ["b"] = 0.25, ["a"] = 1.0 }, ["sortnext"]=10 }, --,
+       { ["name"] = "EP",		          ["width"] = 50,  ["align"] = "RIGHT",   ["color"] = epgpColor},
+       { ["name"] = "GP",		          ["width"] = 50,  ["align"] = "RIGHT",   ["color"] = epgpColor},
+       { ["name"] = "PR",		          ["width"] = 50,  ["align"] = "RIGHT",   ["defaultsort"] = "asc", ["sort"] = "asc", ["sortfirst"]=10, ["sortnext"]=8, ["ident"]="PR"},
+       { ["name"] = "Ролл",		        ["width"] = 35,  ["align"] = "RIGHT",   ["defaultsort"] = "asc", ["sort"] = "asc", ["color"] = epgpColor},
 
-       { ["name"] = L["Roll"],				["width"] = 35,  ["align"] = "RIGHT",   	["defaultsort"] = "asc", ["sort"] = "asc", ["color"] = epgpColor},
-	   { ["name"] = L["Bid"],				["width"] = 45,  ["align"] = "RIGHT",   	["defaultsort"] = "asc", ["sort"] = "asc", ["sortnext"]=7},
-	   { ["name"] = L["Votes"],		        ["width"] = 45,  ["align"] = "RIGHT",   	["defaultsort"] = "asc", ["sort"] = "asc", ["sortnext"]=12},
+       { ["name"] = "Нот",		        ["width"] = 30,  ["align"] = "RIGHT"},
 
-       { ["name"] = L["Note"],				["width"] = 30,  ["align"] = "RIGHT"},
+       { ["name"] = " ",		          ["width"] = 5,   ["align"] = "LEFT",    ["defaultsort"] = "asc", ["sort"] = "asc", ["sortnext"]=7},   -- Spacer, actually contains a check if someone matches MinEP, used for sorting purposes.
 
-       { ["name"] = " ",					["width"] = 5,   ["align"] = "LEFT",    	["defaultsort"] = "asc", ["sort"] = "asc", ["sortnext"]=9},   -- Spacer, actually contains a check if someone matches MinEP, used for sorting purposes.
-
-       { ["name"] = L["iLvl"],				["width"] = 70,  ["align"] = "CENTER", 	 	["bgcolor"] = gearBgColor },
-       { ["name"] = "GP",					["width"] = 60,  ["align"] = "CENTER",  	["bgcolor"] = gearBgColor },
-       { ["name"] = "s1",		          	["width"] = 20,  ["align"] = "CENTER", 		["bgcolor"] = gearBgColor },
-       { ["name"] = "s2",		          	["width"] = 20,  ["align"] = "CENTER",  	["bgcolor"] = gearBgColor },
-       { ["name"] = " ",		          	["width"] = 5,   ["align"] = "LEFT",    	["bgcolor"] = gearBgColor }
+       { ["name"] = "Уровень",		        ["width"] = 60,  ["align"] = "CENTER",  ["bgcolor"] = gearBgColor },
+       { ["name"] = "GP",		          ["width"] = 60,  ["align"] = "CENTER",  ["bgcolor"] = gearBgColor },
+       { ["name"] = "s1",		          ["width"] = 20,  ["align"] = "CENTER",  ["bgcolor"] = gearBgColor },
+       { ["name"] = "s2",		          ["width"] = 20,  ["align"] = "CENTER",  ["bgcolor"] = gearBgColor },
+       { ["name"] = " ",		          ["width"] = 5,   ["align"] = "LEFT",    ["bgcolor"] = gearBgColor }
 }
 
 function LootMasterML:ShowInfoPopup( ... )
@@ -81,7 +76,7 @@ function LootMasterML:GetFrame()
     frame:Show();
     frame:SetPoint("TOPLEFT",mainframe,"TOPLEFT",0,0)
     frame:SetPoint("BOTTOMRIGHT",mainframe,"BOTTOMRIGHT",0,0)
-	frame:SetWidth(790)
+	frame:SetWidth(700)
 	frame:SetHeight(415)
 	--frame:SetPoint("CENTER",UIParent,"CENTER",0,0)
 	frame:EnableMouse()
@@ -139,7 +134,7 @@ function LootMasterML:GetFrame()
     titleFrame:SetScript("OnMouseWheel", function(s, delta)
 		self:SetUIScale( max(min(mainframe:GetScale(0.8) + delta/15,2.0),0.5) );
 	end)
-    titleFrame:SetScript("OnEnter", function() self:ShowInfoPopup("EPGPLootmaster", L["Click and drag to move this window."], L["Doubleclick to fold/unfold this window."]) end)
+    titleFrame:SetScript("OnEnter", function() self:ShowInfoPopup("EPGPLootmaster гильдии InVaDeRs", "Щелкните и удерживайте курсор для перетаскивания окна.", "Дважды щелкните для сворачивания окна.") end)
     titleFrame:SetScript("OnLeave", self.HideInfoPopup)
 	titleFrame:SetScript("OnMouseUp", function()
         mainframe:StopMovingOrSizing()
@@ -165,7 +160,7 @@ function LootMasterML:GetFrame()
 
     local titletext = titleFrame:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
 	titletext:SetPoint("CENTER",titleFrame,"CENTER",0,1)
-	titletext:SetText( string.format("EPGPLootMaster Br %s by Jizar <Nova Genesis> - Tol Barad", self:GetVersionString() ) )
+	titletext:SetText( string.format("EPGPLootMaster %s перевод Zektor'a. Перевод аддона собственность гильдии InVaDeRs сервера СР", self:GetVersionString() ) )
     titleFrame.titletext = titletext
     frame.titleFrame = titleFrame
     --#endregion
@@ -217,14 +212,14 @@ function LootMasterML:GetFrame()
 		insets = { left = 2, right = 1, top = 2, bottom = 2 }
 	})
     equipHeaderFrame:SetBackdropColor(0.2,0.2,0.2,0.6)
-    equipHeaderFrame:SetWidth(180)
+    equipHeaderFrame:SetWidth(170)
     equipHeaderFrame:SetHeight(38)
 
     local titletext = equipHeaderFrame:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
     titletext:SetVertexColor( 0.9, 0.9, 0.9 );
 	titletext:SetPoint("CENTER",equipHeaderFrame,"CENTER",0,0)
     titletext:SetPoint("TOP",equipHeaderFrame,"TOP",0,-5)
-	titletext:SetText( string.format(L["Candidate's current equipment:"], self:GetVersionString() ) )
+	titletext:SetText( string.format("Текущее вооружение кандидатов:", self:GetVersionString() ) )
     --#endregion
 
 	local sstScroll = ScrollingTable:CreateST(sstScrollCols, 15, 20, nil, frame);
@@ -243,13 +238,13 @@ function LootMasterML:GetFrame()
     local lblGPOverride = frame:CreateFontString(nil,"OVERLAY","GameFontNormal")
     --lblGPOverride:SetVertexColor( 0.9, 0.9, 0.9 );
 	lblGPOverride:SetPoint("TOPLEFT",lblItem,"BOTTOMLEFT",0,-15)
-	lblGPOverride:SetText( L["GP value:"] );
+	lblGPOverride:SetText( "Ценность в GP:" );
     frame.lblGPOverride = lblGPOverride
 
     local lblNoDistribute = frame:CreateFontString(nil,"OVERLAY","GameFontNormal")
     lblNoDistribute:SetVertexColor( 1, 0, 0 );
 	lblNoDistribute:SetPoint("TOPLEFT",lblItem,"BOTTOMLEFT",0,-15)
-	lblNoDistribute:SetText( L["** MONITOR ONLY **"] );
+	lblNoDistribute:SetText( "** MONITOR ONLY **" );
     frame.lblNoDistribute = lblNoDistribute
 
     local tbGPValueFrame = CreateFrame("Frame", nil, frame)
@@ -275,7 +270,7 @@ function LootMasterML:GetFrame()
     tbGPValue:SetFontObject('GameFontHighlightSmall')
     tbGPValue:SetScript("OnEscapePressed", function() tbGPValue:ClearFocus() end)
     tbGPValue:SetScript("OnEnterPressed", function() tbGPValue:ClearFocus() end)
-    tbGPValue:SetScript("OnEnter", function() self:ShowInfoPopup(L["GP value:"], L["Change this to the GP value you wish to set for this item"]) end)
+    tbGPValue:SetScript("OnEnter", function() self:ShowInfoPopup("Ценность GP", "Изменение значения GP установленного для этой вещи") end)
     tbGPValue:SetScript("OnLeave", self.HideInfoPopup)
 
     tbGPValue:SetScript("OnEditFocusGained", function() tbGPValue:HighlightText(); CloseDropDownMenus(); end)
@@ -289,79 +284,39 @@ function LootMasterML:GetFrame()
     frame.tbGPValue = tbGPValue;
     frame.tbGPValueFrame = tbGPValueFrame;
 
-	--== btnAnnounce
     local btnAnnounce = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    btnAnnounce:SetScript("OnEnter", function() self:ShowInfoPopup( L["Announce loot"],
-                                                                    L["Click to announce this item to all candidates"],
-                                                                    L["This will open the selecton screen on their client."]) end)
+	btnAnnounce:SetScript("OnClick", function()
+            if not frame.currentLoot then return message('no loot selected') end
+            self:AnnounceLoot( frame.currentLoot.id )
+            btnAnnounce:Hide();
+    end)
+    btnAnnounce:SetScript("OnEnter", function() self:ShowInfoPopup( "Объявить торг",
+                                                                    "Щелкните по этому значку для начала распределения лута.",
+                                                                    "Это автоматически откроет окно распределения лута на других клиентах.") end)
     btnAnnounce:SetScript("OnLeave", self.HideInfoPopup)
 	btnAnnounce:SetPoint("LEFT",tbGPValueFrame,"RIGHT",10,0)
 	btnAnnounce:SetHeight(25)
-	--btnAnnounce:SetWidth(110)
-	btnAnnounce:SetText(L["Announce loot"])
-    btnAnnounce:SetWidth(btnAnnounce:GetFontString():GetStringWidth() + 20)
+	btnAnnounce:SetWidth(120)
+	btnAnnounce:SetText("Объявить торг")
     frame.btnAnnounce = btnAnnounce;
 
-	--== btnAnnounceBids
-    local btnAnnounceBids = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    btnAnnounceBids:SetScript("OnEnter", function() self:ShowInfoPopup( L["Announce loot & request bids"],
-                                                                    L["Click to announce this item to all candidates and allow GP bid input"],
-                                                                    L["This will open the selecton screen on their client."]) end)
-    btnAnnounceBids:SetScript("OnLeave", self.HideInfoPopup)
-	btnAnnounceBids:SetPoint("LEFT",btnAnnounce,"RIGHT",5,0)
-	btnAnnounceBids:SetHeight(25)
-	btnAnnounceBids:SetText(L["Announce loot & request bids"])
-	btnAnnounceBids:SetWidth(btnAnnounceBids:GetFontString():GetStringWidth() + 30)
-    frame.btnAnnounceBids = btnAnnounceBids;
-
-	--== btnDiscard
     local btnDiscard = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    btnDiscard:SetScript("OnEnter", function() self:ShowInfoPopup( L["Discard loot"],
-                                                                   L["Click to remove this item and all the candidate selections from your list."],
-                                                                   L["Use this when you don't want to loot this item and close the lootmaster window."]) end)
-    btnDiscard:SetScript("OnLeave", self.HideInfoPopup)
-	btnDiscard:SetPoint("TOP",equipHeaderFrame,"TOP",0,40)
-    btnDiscard:SetPoint("RIGHT",equipHeaderFrame,"RIGHT",0,0)
-	btnDiscard:SetHeight(25)
-	btnDiscard:SetText(L["Discard loot"])
-	btnDiscard:SetWidth(btnDiscard:GetFontString():GetStringWidth() + 20)
-    frame.btnDiscard = btnDiscard;
-
-	btnAnnounce:SetScript("OnClick", function()
-		if not frame.currentLoot then return message(L['no loot selected']) end
-		self:AnnounceLoot( frame.currentLoot.id )
-		btnAnnounce:Hide()
-		btnAnnounceBids:Hide()
-    end)
-	btnAnnounceBids:SetScript("OnClick", function()
-		if not frame.currentLoot then return message(L['no loot selected']) end
-		self:AnnounceLootAndRequestBids( frame.currentLoot.id, true )
-		btnAnnounce:Hide()
-		btnAnnounceBids:Hide()
-    end)
 	btnDiscard:SetScript("OnClick", function()
             if frame.currentLoot then
                 self:RemoveLoot( frame.currentLoot.id );
             end
             self:UpdateUI();
     end)
-
-	--== btnRequestVote
-	local btnRequestVote = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-	btnRequestVote:SetScript("OnClick", function()
-            if not frame.currentLoot then return message(L['no loot selected']) end
-            self:RequestVotes( frame.currentLoot.id )
-            btnRequestVote:Hide();
-    end)
-    btnRequestVote:SetScript("OnEnter", function() self:ShowInfoPopup(	L["Request votes"],
-																		L["Click to ask your loot council to vote for a player for the selected item"]) end)
-    btnRequestVote:SetScript("OnLeave", self.HideInfoPopup)
-	btnRequestVote:SetPoint("RIGHT",btnDiscard,"LEFT",-10,0)
-	btnRequestVote:SetHeight(25)
-	btnRequestVote:SetText(L["Request votes"])
-	btnRequestVote:SetWidth(btnRequestVote:GetFontString():GetStringWidth() + 20)
-	btnRequestVote:Hide()
-    frame.btnRequestVote = btnRequestVote;
+    btnDiscard:SetScript("OnEnter", function() self:ShowInfoPopup( "Закрыть окно",
+                                                                   "Щелкните, чтобы закрыть данное окно и все выборы кандидатов из Вашего списка.",
+                                                                   "Используйте если не хотите учавствовать в разделе добычи.") end)
+    btnDiscard:SetScript("OnLeave", self.HideInfoPopup)
+	btnDiscard:SetPoint("TOP",btnAnnounce,"TOP",0,0)
+    btnDiscard:SetPoint("RIGHT",equipHeaderFrame,"LEFT",-10,0)
+	btnDiscard:SetHeight(25)
+	btnDiscard:SetWidth(120)
+	btnDiscard:SetText("Закрыть окно")
+    frame.btnDiscard = btnDiscard;
 
 
     local drop = CreateFrame("Frame", "LootMasterMLCandidateDropDown", frame, "UIDropDownMenuTemplate");
@@ -376,15 +331,6 @@ function LootMasterML:GetFrame()
 
     mainframe:SetHeight( frame:GetHeight() )
     self:UpdateWidth()
-
-	frame.timer = 0
-	frame:SetScript("OnUpdate", function( o, elapsed )
-		if frame.timer>1000000 then
-			frame.timer = frame.timer - 1000000 + elapsed
-		else
-			frame.timer = frame.timer + elapsed
-		end
-	end)
 
     return self.frame
 end
@@ -576,11 +522,11 @@ function LootMasterML:DisplayLoot( item )
 
     local binding = '';
     if data.binding=='use' then
-        binding = L[', BoU']
+        binding = ', BoU'
     elseif data.binding=='pickup' then
-        binding = L[', BoP']
+        binding = ', BoP'
     elseif data.binding=='equip' then
-        binding = L[', BoE']
+        binding = ', BoE'
     end
 
     local gp2 = '';
@@ -588,38 +534,26 @@ function LootMasterML:DisplayLoot( item )
         gp2 = format(' or %s', data.gpvalue2)
     end
 
-    self.frame.lblInfo:SetText(format(L["ilevel: %s, GP: %s%s%s"], data.ilevel or -1, data.gpvalue or -1, gp2, binding or ''));
+    self.frame.lblInfo:SetText(format("Уровень предмета: %s, GP: %s%s%s", data.ilevel or -1, data.gpvalue or -1, gp2, binding or ''));
     self.frame.itemIcon:SetNormalTexture(data.texture);
 
     self.frame.tbGPValue:SetText( data.gpvalue_manual )
 
     if not data.announced then
-        self.frame.btnAnnounce:Show()
-		if LootMaster.db.profile.bidding then
-			self.frame.btnAnnounceBids:Show()
-		else
-			self.frame.btnAnnounceBids:Hide()
-		end
+        self.frame.btnAnnounce:Show();
     else
-        self.frame.btnAnnounce:Hide()
-		self.frame.btnAnnounceBids:Hide()
+        self.frame.btnAnnounce:Hide();
     end
 
-	if not data.votesRequested and LootMaster.db.profile.voting then
-		self.frame.btnRequestVote:Show()
-	else
-		self.frame.btnRequestVote:Hide()
-	end
-
     if data.mayDistribute then
-        self.frame.tbGPValueFrame:Show()
-        self.frame.lblGPOverride:Show()
-        self.frame.lblNoDistribute:Hide()
+        self.frame.tbGPValueFrame:Show();
+        self.frame.lblGPOverride:Show();
+        self.frame.lblNoDistribute:Hide();
     else
-        self.frame.tbGPValueFrame:Hide()
-        self.frame.lblGPOverride:Hide()
-        self.frame.lblNoDistribute:Show()
-        self.frame.lblNoDistribute:SetText( format(L["** MONITORING ** Only %s may distribute this item **"], tostring(data.lootmaster)) )
+        self.frame.tbGPValueFrame:Hide();
+        self.frame.lblGPOverride:Hide();
+        self.frame.lblNoDistribute:Show();
+        self.frame.lblNoDistribute:SetText( format("** MONITORING ** Only %s may distribute this item **", tostring(data.lootmaster)) )
     end
 
     --[[if data.hideResponses and data.announced then
@@ -766,7 +700,7 @@ function LootMasterML:CandidateDropDownInitialize( frame, level, menuList )
     local loot = LootMasterML.GetLoot( LootMasterML, LootMasterML.CandidateDropDown.selectedLink );
 
     if not loot then
-        LootMasterML:Print(LootMasterML, L['could not display lootdropdown; loot not in table']);
+        LootMasterML:Print(LootMasterML, 'could not display lootdropdown; loot not in table');
         return frame:Hide();
     end
 
@@ -790,21 +724,11 @@ function LootMasterML:CandidateDropDownInitialize( frame, level, menuList )
             info.notCheckable = 1;
         end
 
-		if loot.voteAllowed and not (LootMaster.db.profile.votingDisallowSelf and UnitIsUnit(LootMasterML.CandidateDropDown.selectedCandidate, 'player')) then
-			info.notCheckable = 1;
-			info.disabled = false;
-			info.text = L["Vote"]
-			info.tooltipTitle = L["Vote"]
-			info.tooltipText = L["Click to vote for this candidate"]
-			info.func = function() LootMasterML.CastVote(LootMasterML, LootMasterML.CandidateDropDown.selectedLink, LootMasterML.CandidateDropDown.selectedCandidate) end;
-			UIDropDownMenu_AddButton(info,UIDROPDOWNMENU_MENU_LEVEL);
-		end
-
-		info.notCheckable = 1;
+        info.notCheckable = 1;
         info.disabled = false;
-        info.text = L['Whisper']
-        info.tooltipTitle = L['Whisper']
-        info.tooltipText = L['Send a message to the selected candidate.']
+        info.text = 'Whisper';
+        info.tooltipTitle = 'Whisper'
+        info.tooltipText = 'Send a message to the selected candidate.'
         info.func = function() ChatFrame_SendTell(LootMasterML.CandidateDropDown.selectedCandidate) end;
         UIDropDownMenu_AddButton(info,UIDROPDOWNMENU_MENU_LEVEL);
 
@@ -821,33 +745,20 @@ function LootMasterML:CandidateDropDownInitialize( frame, level, menuList )
 
             if not loot.manual then
 
-				if loot.allowBids then
-					local bid = tonumber(LootMasterML.GetCandidateData(LootMasterML, LootMasterML.CandidateDropDown.selectedLink, LootMasterML.CandidateDropDown.selectedCandidate, 'bid')) or 0
-					if bid>loot.gpvalue then
-						info.isTitle = false;
-						info.disabled = not CanEditOfficerNote();
-						info.text = format( L['Give loot and award %s GP Bid'], bid);
-						info.tooltipTitle = info.text;
-						info.tooltipText = format(L['Attempts to send the loot to the candidate and awards %s GP to the candidate'], bid);
-						info.func = function() LootMasterML.GiveLootToCandidate(LootMasterML, LootMasterML.CandidateDropDown.selectedLink, LootMasterML.CandidateDropDown.selectedCandidate, LootMaster.LOOTTYPE.GP, bid) end;
-						UIDropDownMenu_AddButton(info,UIDROPDOWNMENU_MENU_LEVEL);
-					end
-				end
-
                 info.isTitle = false;
                 info.disabled = not CanEditOfficerNote();
-                info.text = format( L['Give loot and award %s GP'], loot.gpvalue_manual or 0 );
+                info.text = format( 'Отдать лут и начислить %s GP', loot.gpvalue_manual or 0 );
                 info.tooltipTitle = info.text;
-                info.tooltipText = format(L['Attempts to send the loot to the candidate and awards %s GP to the candidate'], loot.gpvalue_manual or 0);
+                info.tooltipText = format('Attempts to send the loot to the candidate and awards %s GP to the candidate', loot.gpvalue_manual or 0);
                 info.func = function() LootMasterML.GiveLootToCandidate(LootMasterML, LootMasterML.CandidateDropDown.selectedLink, LootMasterML.CandidateDropDown.selectedCandidate, LootMaster.LOOTTYPE.GP, loot.gpvalue_manual or 0) end;
                 UIDropDownMenu_AddButton(info,UIDROPDOWNMENU_MENU_LEVEL);
 
                 if loot.gpvalue2 and loot.gpvalue2~=0 then
                     info.isTitle = false;
                     info.disabled = not CanEditOfficerNote();
-                    info.text = format( L['Give loot and award %s GP (100%%)'], loot.gpvalue2 or 0 );
+                    info.text = format( 'Отдать лут и начислить %s GP (100%%)', loot.gpvalue2 or 0 );
                     info.tooltipTitle = info.text;
-                    info.tooltipText = format(L['Attempts to send the loot to the candidate and awards %s GP to the candidate'], loot.gpvalue2 or 0);
+                    info.tooltipText = format('Attempts to send the loot to the candidate and awards %s GP to the candidate', loot.gpvalue2 or 0);
                     info.func = function() LootMasterML.GiveLootToCandidate(LootMasterML, LootMasterML.CandidateDropDown.selectedLink, LootMasterML.CandidateDropDown.selectedCandidate, LootMaster.LOOTTYPE.GP, loot.gpvalue2 or 0) end;
                     UIDropDownMenu_AddButton(info,UIDROPDOWNMENU_MENU_LEVEL);
                 end
@@ -868,9 +779,9 @@ function LootMasterML:CandidateDropDownInitialize( frame, level, menuList )
 
                       info.isTitle = false;
                       info.disabled = not CanEditOfficerNote();
-                      info.text = format( L['Give loot and award %s GP for %s (%s)'], gp, btn.text, vs );
+                      info.text = format( 'Отдать лут и начислить %s GP %s (%s)', gp, btn.text, vs );
                       info.tooltipTitle = info.text;
-                      info.tooltipText = format(L['Attempts to send the loot to the candidate and awards %s GP to the candidate for %s'], gp, btn.text);
+                      info.tooltipText = format('Attempts to send the loot to the candidate and awards %s GP to the candidate for %s', gp, btn.text);
                       info.func = function() LootMasterML.GiveLootToCandidate(LootMasterML, LootMasterML.CandidateDropDown.selectedLink, LootMasterML.CandidateDropDown.selectedCandidate, LootMaster.LOOTTYPE.GP, gp) end;
                       UIDropDownMenu_AddButton(info,UIDROPDOWNMENU_MENU_LEVEL);
                     end
@@ -878,34 +789,34 @@ function LootMasterML:CandidateDropDownInitialize( frame, level, menuList )
 
                 info.isTitle = false;
                 info.disabled = false;
-                info.text = L['Give loot for free'];
-                info.tooltipTitle = L['Give loot for free'];
-                info.tooltipText = L["Attempts to send the loot to the candidate and doesn't award GP to the candidate, thus giving it for free."];
+                info.text = 'Отдать лут бесплатно';
+                info.tooltipTitle = 'Give loot for free';
+                info.tooltipText = "Attempts to send the loot to the candidate and doesn't award GP to the candidate, thus giving it for free.";
                 info.func = function() LootMasterML.GiveLootToCandidate(LootMasterML, LootMasterML.CandidateDropDown.selectedLink, LootMasterML.CandidateDropDown.selectedCandidate, LootMaster.LOOTTYPE.GP, 0 ) end;
                 UIDropDownMenu_AddButton(info,UIDROPDOWNMENU_MENU_LEVEL);
 
                 info.isTitle = false;
                 info.disabled = false;
-                info.text = L['Give loot for disenchantment'];
-                info.tooltipTitle = L['Give loot for disenchantment'];
-                info.tooltipText = L['Attempts to send the loot to the candidate for disenchantment.'];
+                info.text = 'Отдать лут на дизинчант';
+                info.tooltipTitle = 'Give loot for disenchantment';
+                info.tooltipText = 'Attempts to send the loot to the candidate for disenchantment.';
                 info.func = function() LootMasterML.GiveLootToCandidate(LootMasterML, LootMasterML.CandidateDropDown.selectedLink, LootMasterML.CandidateDropDown.selectedCandidate, LootMaster.LOOTTYPE.DISENCHANT ) end;
                 UIDropDownMenu_AddButton(info,UIDROPDOWNMENU_MENU_LEVEL);
 
                 info.isTitle = false;
                 info.disabled = false;
-                info.text = L['Give loot for bank'];
-                info.tooltipTitle = L['Give loot for bank'];
-                info.tooltipText = L['Attempts to send the loot to the candidate for storage in bank.'];
+                info.text = 'Отдать лут в банк';
+                info.tooltipTitle = 'Give loot for bank';
+                info.tooltipText = 'Attempts to send the loot to the candidate for storage in bank.';
                 info.func = function() LootMasterML.GiveLootToCandidate(LootMasterML, LootMasterML.CandidateDropDown.selectedLink, LootMasterML.CandidateDropDown.selectedCandidate, LootMaster.LOOTTYPE.BANK ) end;
                 UIDropDownMenu_AddButton(info,UIDROPDOWNMENU_MENU_LEVEL);
 
             else
                 info.isTitle = false;
                 info.disabled = false;
-                info.text = L['- Cannot distribute loot -'];
+                info.text = '- Не возможно распределить -';
                 info.tooltipTitle = info.text;
-                info.tooltipText = L["You have added this loot manually to the list, you will need to handle the loot manually and discard the loot from the list when you're done distributing it."]
+                info.tooltipText = "You have added this loot manually to the list, you will need to handle the loot manually and discard the loot from the list when you're done distributing it."
                 info.func = function() end;
                 UIDropDownMenu_AddButton(info,UIDROPDOWNMENU_MENU_LEVEL);
             end
@@ -921,18 +832,18 @@ function LootMasterML:CandidateDropDownInitialize( frame, level, menuList )
 
             info.isTitle = false;
             info.disabled = false;
-            info.text = L['(Re)announce loot to candidate'];
-            info.tooltipTitle = L['(Re)announce loot to candidate'];
-            info.tooltipText = L['Reopens the loot selection popup at the candidate, this offers the candidate to vote for the loot after a crash or disconnect.'];
+            info.text = 'Переролить персонажу';
+            info.tooltipTitle = '(Re)announce loot to candidate';
+            info.tooltipText = 'Reopens the loot selection popup at the candidate, this offers the candidate to vote for the loot after a crash or disconnect.';
             info.func = function() LootMasterML.AskCandidateIfNeeded(LootMasterML, LootMasterML.CandidateDropDown.selectedLink, LootMasterML.CandidateDropDown.selectedCandidate) end;
             UIDropDownMenu_AddButton(info,UIDROPDOWNMENU_MENU_LEVEL);
 
             info.isTitle = false;
             info.disabled = false;
             info.hasArrow = 1;
-            info.text = L['Set response manually'];
-            info.tooltipTitle = L['Set response manually'];
-            info.tooltipText = L['Allows you to manually set the response for a given candidate'];
+            info.text = 'Выбор и отдача лута вручную';
+            info.tooltipTitle = 'Set response manually';
+            info.tooltipText = 'Allows you to manually set the response for a given candidate';
             info.func = function() end;
             info.value = 'RESPONSE_OVERRIDE';
             UIDropDownMenu_AddButton(info,UIDROPDOWNMENU_MENU_LEVEL);
@@ -949,7 +860,7 @@ function LootMasterML:CandidateDropDownInitialize( frame, level, menuList )
               info.disabled = false
               info.text = btn.text
               info.tooltipTitle = btn.text
-              info.tooltipText = L['Manually sets the response of this candidate to ']..btn.text..L['. Please note that the candidate will receive a notice about this in whisper.']
+              info.tooltipText = 'Manually sets the response of this candidate to '..btn.text..'. Please note that the candidate will receive a notice about this in whisper.'
               info.func = function()
                 LootMasterML.SetManualResponse(LootMasterML, LootMasterML.CandidateDropDown.selectedLink, LootMasterML.CandidateDropDown.selectedCandidate, btn.response )
                 CloseDropDownMenus()
@@ -959,9 +870,9 @@ function LootMasterML:CandidateDropDownInitialize( frame, level, menuList )
 
             info.isTitle = false
             info.disabled = false
-            info.text = L['Pass']
-            info.tooltipTitle = L['Pass']
-            info.tooltipText = L['Manually sets the response of this candidate to pass. Please note that the candidate will receive a notice about this in whisper.']
+            info.text = 'Pass'
+            info.tooltipTitle = 'Pass'
+            info.tooltipText = 'Manually sets the response of this candidate to pass. Please note that the candidate will receive a notice about this in whisper.'
             info.func = function()
               LootMasterML.SetManualResponse(LootMasterML, LootMasterML.CandidateDropDown.selectedLink, LootMasterML.CandidateDropDown.selectedCandidate, LootMaster.RESPONSE.PASS )
               CloseDropDownMenus()
@@ -1067,7 +978,7 @@ end
 function LootMasterML:ShowGearInspectPopup( candidate, item )
     local foundGear = self:GetCandidateData(item, candidate, "foundGear") or false;
     if not foundGear then
-        self:ShowInfoPopup( candidate, L['Click to retrieve current equipment.'] );
+        self:ShowInfoPopup( candidate, 'Щелкните, чтобы увидеть вещи персонажа.' );
     end
 end
 
@@ -1075,7 +986,7 @@ function LootMasterML:ShowNoteCellPopup( candidate, item )
     local itemData = self:GetCandidateData(item, candidate, 'note');
     if not itemData or itemData=='' then return end;
 
-    self:ShowInfoPopup(L['Note added by '] .. candidate .. ':', itemData or '');
+    self:ShowInfoPopup('Note added by ' .. candidate .. ':', itemData or '');
 end
 
 function LootMasterML:ShowGearCellPopup( candidate, item, dataName )
@@ -1105,66 +1016,18 @@ function LootMasterML:ShowRollCellPopup( candidate, item )
     local roll = self:GetCandidateData(item, candidate, 'roll');
     if not roll then return end;
 
-    self:ShowInfoPopup( L['Random roll'],
-                        L['This value is only needed when two candidates have the same PR.'],
-                        L['It is just a simple random roll to decide who gets the loot'],
-                        format(L['%s rolled %s.'], candidate, roll)
+    self:ShowInfoPopup( 'Случайный ролл',
+                        'Эта опция только необходима, когда у двух кандидатов равное значение PR.',
+                        'Это - простой случайный ролл, чтобы решить, кто получает добычу',
+                        format('%s ролл %s.', candidate, roll)
     );
-end
-
-function LootMasterML:ShowBidCellPopup( candidate, item )
-    local bid = self:GetCandidateData(item, candidate, 'bid');
-    if not bid then return end;
-    --self:ShowInfoPopup( L['Bid'],
-    --                    format(L['%s bid %s.'], candidate, bid)
-    --);
-end
-
-function LootMasterML:ShowVotesCellPopup( candidate, item )
-	local loot = self:GetLoot(item)
-	if not loot then return end
-
-	if not loot.voteAllowed then
-		self:ShowInfoPopup(	L['Votes'],
-							L['The voting system has been disabled or no votes have been requested. You can enable the voting system from the configuration panel and you can request votes by pressing the [Request Votes] button if you are the master looter'])
-		return
-	end
-
-	if not loot.voteRequired then
-		-- build a list of people who voted for the selected candidate
-		local voters = nil
-		if type(loot.voters) == 'table' then
-			-- ok, we've voted for this item, see if theres another item on the list that needs a vote!
-			for listVoter, listCandidate in pairs(loot.voters) do
-				if candidate==listCandidate then
-					if voters==nil then voters={} end
-					tinsert(voters, listVoter)
-				end
-			end
-		end
-
-		if voters==nil or #(voters)<1 then
-			-- Noone voted for this candidate, poor guy/gal
-			self:ShowInfoPopup(	L['Votes'],
-								format(L['Noone has voted for %s'], candidate));
-		else
-			-- Someone voted for this candidate, lucky bastard!
-			self:ShowInfoPopup(	L['Votes'],
-								format(L['The following players have voted for %s:'], candidate))
-			for i, voter in ipairs(voters) do
-				GameTooltip:AddLine( voter, 1, 0, 1 )
-			end
-			GameTooltip:Show()
-			GameTooltip:ClearAllPoints()
-		end
-	end
 end
 
 function LootMasterML:SetGearCelliLVL( cell, self, candidate, item )
 
     local foundGear = self:GetCandidateData(item, candidate, "foundGear") or false;
     if not foundGear then
-        cell.text:SetText( L['- inspect -'] );
+        cell.text:SetText( '- осмотр -' );
         return;
     end
 
@@ -1205,19 +1068,11 @@ function LootMasterML:SetCandidateEPGPCellUserDraw( cell, self, candidate, item 
     cell.text:SetText( format('%s/%s', tostring(ep), tostring(gp)) );
 end
 
-function LootMasterML:GetCandidateCellColor(candidate, item, dataName, defaultColor)
+function LootMasterML:GetCandidateCellColor( candidate, item, dataName, defaultColor )
     --local itemData = self:GetCandidateData( item, candidate, "version" );
 
     local r, g, b = self:GetCandidateResponseColor( candidate, item, nil );
     return {["r"] = r or 1, ["g"] = g or 0, ["b"] = b or 1, ["a"] = 1.0 };
-end
-
-function LootMasterML:GetCandidateEPCellColor(candidate, item, dataName, defaultColor)
-	if self:GetMinEPMatch(candidate)~='y' then
-		return {["r"] = 1, ["g"] = 0, ["b"] = 0, ["a"] = 1.0}
-	else
-		return epgpColor
-	end
 end
 
 function LootMasterML:GetCandidateClassCellColor( candidate, item, dataName, defaultColor )
@@ -1260,7 +1115,7 @@ function LootMasterML:SetCandidateResponseCellUserDraw( cell, self, candidate, i
 
     local data = self:GetLoot(item)
     if data.hideResponses and data.announced and response > LootMaster.RESPONSE.TIMEOUT then
-      return cell.text:SetText(L['Selected (temporarely hidden)'])
+      return cell.text:SetText('Selected (temporarely hidden)')
     end
 
     local text = nil;
@@ -1269,9 +1124,9 @@ function LootMasterML:SetCandidateResponseCellUserDraw( cell, self, candidate, i
 
     if response == LootMaster.RESPONSE.DISENCHANT then
         if autoPass then
-            text = format(L['Auto pass; Enchanter (%s)'],self:GetCandidateData(item, candidate, "enchantingSkill") or 0);
+            text = format('Auto pass; Enchanter (%s)',self:GetCandidateData(item, candidate, "enchantingSkill") or 0);
         else
-            text = format(L['Pass; Enchanter (%s)'],self:GetCandidateData(item, candidate, "enchantingSkill") or 0);
+            text = format('Pass; Enchanter (%s)',self:GetCandidateData(item, candidate, "enchantingSkill") or 0);
         end
 
     elseif override then
@@ -1286,7 +1141,7 @@ function LootMasterML:SetCandidateResponseCellUserDraw( cell, self, candidate, i
 
     -- Add looted status message when candidate has looted the item.
     if self:GetCandidateData(item, candidate, "looted") then
-        return cell.text:SetText( (text or '')  .. '; ' .. L['Looted'] )
+        return cell.text:SetText( (text or '')  .. '; Looted' )
     end
 
     return cell.text:SetText( text or '' )
@@ -1302,73 +1157,6 @@ function LootMasterML:SetCandidateRollCellUserDraw( cell, self, candidate, item 
     end
 end
 
-function LootMasterML:SetCandidateBidCellUserDraw( cell, self, candidate, item )
-    local bid = self:GetCandidateData(item, candidate, "bid");
-
-    if bid and bid>0 then
-        cell.text:SetText( floor(bid) );
-    else
-        cell.text:SetText( '' );
-    end
-end
-
-function LootMasterML:SetCandidateVotesCellUserDraw( cell, self, candidate, item )
-    local loot = self:GetLoot(item)
-
-	local v = tonumber(self:GetCandidateData(loot.id, candidate, "votes")) or 0
-
-	if loot.voteRequired and loot.voteAllowed and not (LootMaster.db.profile.votingDisallowSelf and UnitIsUnit(candidate, 'player')) then
-		-- show button
-		cell.text:SetText('')
-
-		-- create button if it doesn't exist
-		if not cell.votebutton then
-			local btn = CreateFrame("Button", nil, cell, "UIPanelButtonTemplate")
-			btn:SetPoint("TOPLEFT",cell,"TOPLEFT",0,0)
-			btn:SetPoint("BOTTOMRIGHT",cell,"BOTTOMRIGHT",0,0)
-			btn:SetText(L["Vote"])
-			cell.votebutton = btn
-			btn:SetScript("OnClick", function()
-				if not cell.candidate or not cell.item then
-					print('no data!')
-					return
-				end
-				self:CastVote(cell.item, cell.candidate)
-			end)
-			btn.fontObj = btn:GetNormalFontObject()
-			btn:SetScript("OnUpdate", function( o, elapsed )
-				if self.frame.timer*100%100<50 then
-					--btn:GetNormalTexture():SetVertexColor(1, 0, 0)
-					btn.fontObj:SetTextColor(1, 0.5, 0.25, 1.0)
-					btn:SetNormalFontObject(btn.fontObj)
-				else
-					--btn:GetNormalTexture():SetVertexColor(1, 1, 1)
-					btn.fontObj:SetTextColor(1, 1, 0.25, 1.0)
-					btn:SetNormalFontObject(btn.fontObj)
-				end
-			end)
-			btn:SetScript("OnEnter", function()
-				self:ShowInfoPopup(	L['Votes'],
-									format(L['Please click this button to vote for %s for the selected item'], cell.candidate))
-			end)
-			btn:SetScript("OnLeave", self.HideInfoPopup)
-		end
-
-		cell.item = item
-		cell.candidate = candidate
-		cell.votebutton:Show()
-	else
-		-- hide button (if available)
-		if cell.votebutton then cell.votebutton:Hide() end
-
-		if v>0 and not loot.voteRequired then
-			cell.text:SetText(v)
-		else
-			cell.text:SetText('')
-		end
-	end
-end
-
 function LootMasterML:HideGearCellPopup( candidate, item, dataName )
     GameTooltip:Hide()
 end
@@ -1378,7 +1166,7 @@ function LootMasterML:OnGearInspectClick( candidate, item )
         self.frame.sstScroll:SortData();
         self.frame.sstScroll:DoFilter();
     else
-        self:Print( format(L['%s is offline, out of range or not grouped, unable to inspect.'], candidate or 'Unknown') )
+        self:Print( format('%s is offline, out of range or not grouped, unable to inspect.', candidate or 'Unknown') )
     end
 end
 
@@ -1447,28 +1235,9 @@ function LootMasterML:RaidInfoLookupPrintUserDraw(cell, value)
     cell.text:SetText(format('%s ms', ceil(value*1000)))
 end
 
-function LootMasterML:RaidInfoCheckedPrintUserDraw(cell, value)
-    if not value or type(value)~='number' then value=0 end;
-
-	if not cell.isSetup then
-		cell.isSetup = true
-		cell.text:SetText('')
-	end
-
-	if value==1 then
-		cell:SetNormalTexture("Interface\\Buttons\\UI-CheckBox-Check")
-		cell:GetNormalTexture():SetTexCoord(0,1,0,1)
-	else
-		cell:SetNormalTexture("Interface\\Buttons\\UI-CheckBox-Up")
-		cell:GetNormalTexture():SetTexCoord(0,1,0,1)
-	end
-end
-
-
-
 function LootMasterML:RaidInfoLookupActionUserDraw(cell, value)
     if not value or value==0 then
-        return cell.text:SetText(L['[send installation info]'])
+        return cell.text:SetText('[send installation info]')
     end;
     cell.text:SetText('')
 end
@@ -1478,7 +1247,7 @@ function LootMasterML:RaidInfoLookupActionClick(name)
     local rowID = self.raidinfoframe.members[name];
     if not rowID then return end;
     if self.raidinfoframe.rows[rowID].cols[3].value == 0 then
-        SendChatMessage(L["Auto message: please install EPGPLootmaster from curse.com:  http://wow.curse.com/downloads/wow-addons/details/epgp_lootmaster.aspx"], "WHISPER", nil, name);
+        SendChatMessage("Auto message: please install EPGPLootmaster from curse.com:  http://wow.curse.com/downloads/wow-addons/details/epgp_lootmaster.aspx", "WHISPER", nil, name);
     end
 end
 
@@ -1497,24 +1266,24 @@ function LootMasterML:RaidInfoLookupResponse(name, response)
 
     if iFound == 0 then
         -- Instance couldn't be found on the player's raidinfo, assume not saved
-        row.cols[3].value = L['Not saved, available'];
+        row.cols[2].value = 'Not saved, available';
         row.color = {r=0,g=1,b=0,a=1}
     else
         -- Instance was found on the player's list
         if iResets <= 0 then
-            row.cols[3].value = L['Raid lock expired, available'];
+            row.cols[2].value = 'Raid lock expired, available';
             row.color = {r=0,g=1,b=0,a=1}
         else
             if frame.localInstanceID and iID == frame.localInstanceID then
-              row.cols[3].value = L['Saved to your instance'];
+              row.cols[2].value = 'Saved to your instance';
               row.color = {r=0,g=1,b=0,a=1}
             else
               if iLocked == 'true' then
-                  row.cols[3].value = format(L['Saved to %d, locked'], iID);
+                  row.cols[2].value = 'Saved to '..iID..', locked';
                   row.color = {r=1,g=0,b=0,a=1}
               else
                   row.color = {r=1,g=0.5,b=0,a=1}
-                  row.cols[3].value = format(L['Saved to %d, but not yet locked'], iID);
+                  row.cols[2].value = 'Saved to '..iID..', but not yet locked';
               end
             end
         end
@@ -1531,73 +1300,21 @@ function LootMasterML:RaidInfoLookupPrintColor(name)
     return self.raidinfoframe.rows[rowID].color
 end
 
-local lastClicked = -1
-local lastClickValue = 0
 function LootMasterML:AddRaidInfoLookupMember(name)
 
     if not name then return end
 
     tinsert( self.raidinfoframe.rows, {
         ["cols"] = {
-			{["value"]          = 0,
-			 ["userDraw"]       = self.RaidInfoCheckedPrintUserDraw},
-
             {["value"]          = name},
 
-            {["value"]          = L['No response; not installed?']},
+            {["value"]          = 'No response; not installed?'},
 
             {["value"]          = '',
              ["userDraw"]       = self.RaidInfoLookupPrintUserDraw,
              ["color"]          = self.RaidInfoLookupPrintColor,
              ["colorargs"]      = {self, name}}
         },
-		["onclickargs"] = {#(self.raidinfoframe.rows)+1},
-		["onclick"]	= function(rowID)
-			local sstScroll = self.raidinfoframe.sstScroll
-			local value = self.raidinfoframe.rows[rowID]
-			if not value then return end
-			value = value.cols[1];
-			if not value then return end
-			value = value.value
-
-			if value==0 then
-				value = 1
-			else
-				value = 0
-			end
-			self.raidinfoframe.rows[rowID].cols[1].value = value
-
-			local rev = {}
-			for i,j in pairs(sstScroll.filtered) do
-				rev[j] = i
-			end
-
-			if IsShiftKeyDown() and lastClickValue~=-1 then
-				local lstart, lend
-				if rev[rowID] < lastClicked then
-					lstart = rev[rowID]
-					lend = lastClicked
-				else
-					lstart = lastClicked
-					lend = rev[rowID]
-				end
-				for i=lstart, lend do
-					local selRowID = sstScroll.filtered[i]
-					if selRowID then
-						local selRowData = self.raidinfoframe.rows[selRowID]
-						if selRowData then
-							self.raidinfoframe.rows[selRowID].cols[1].value = value
-						end
-					end
-				end
-			end
-
-			lastClicked = rev[rowID]
-			lastClickValue = value
-
-			sstScroll:SortData()
-			sstScroll:DoFilter()
-		end,
         ["start"] = GetTime(),
         ["color"] = {r=0.5,g=0.5,b=0.5,a=1}
     })
@@ -1715,7 +1432,7 @@ function LootMasterML:ShowRaidInfoLookup()
         --#region Setup main masterlooter frame
         frame:Hide();
         frame:SetWidth(700)
-        frame:SetHeight(420)
+        frame:SetHeight(400)
         frame:SetPoint("CENTER",UIParent,"CENTER",0,0)
         frame:SetPoint("CENTER",UIParent,"CENTER",0,0)
         frame:EnableMouse()
@@ -1758,14 +1475,13 @@ function LootMasterML:ShowRaidInfoLookup()
 
         local titletext = titleFrame:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
         titletext:SetPoint("CENTER",titleFrame,"CENTER",0,1)
-        titletext:SetText( string.format("EPGPLootMaster Br %s by Jizar <Nova Genesis> - Tol Barad", LootMaster:GetVersionString() ) )
+        titletext:SetText( string.format("EPGPLootMaster %s by Bushmaster <Steel Alliance> - Twisting Nether EU", LootMaster:GetVersionString() ) )
         frame.titleFrame = titleFrame
         --#endregion
 
         local sstScroll = ScrollingTable:CreateST({
-				{ ["name"] = "Sel.",		["width"] = 20, ["align"] = "LEFT" },
-                { ["name"] = "member",		["width"] = 250, ["align"] = "LEFT", ["defaultsort"] = "asc", ["sort"] = "asc", ["sortfirst"]=3 },
-                { ["name"] = "raid lock",		["width"] = 300, ["align"] = "LEFT", 	["defaultsort"] = "desc", ["sort"] = "desc", ["sortnext"]=2}
+                { ["name"] = "member",		["width"] = 250, ["align"] = "LEFT" },
+                { ["name"] = "raid lock",		["width"] = 300, ["align"] = "LEFT", 	["defaultsort"] = "desc", ["sort"] = "desc"}
 
             }, 15, 20, nil, frame);
         --#region Setup the scrollingTable
@@ -1774,87 +1490,15 @@ function LootMasterML:ShowRaidInfoLookup()
         frame:SetWidth( sstScroll.frame:GetWidth(width) + 37 )
         frame.sstScroll = sstScroll
 
-		local btnInvite = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-        btnInvite:SetScript("OnClick", function()
-			local rows = self.raidinfoframe.rows
-			if not rows then return end
-			for i,row in pairs(rows) do
-				local player = row.cols[2].value
-				if row.cols[1].value == 1 and not UnitIsUnit("player", player) then
-					InviteUnit(player)
-				end
-			end
-        end)
-        btnInvite:SetPoint("TOPRIGHT",sstScroll.frame,"BOTTOMRIGHT",-3,-3)
-        btnInvite:SetHeight(25)
-        btnInvite:SetWidth(140)
-        btnInvite:SetText(L["Invite selected"])
-
-		local btnWhisper = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-        btnWhisper:SetScript("OnClick", function()
-			local rows = self.raidinfoframe.rows
-			if not rows then return end
-			if strlen(strtrim(frame.tbWhisperBox:GetText())) == 0 then
-				print("Please enter a message in the textbox")
-				return
-			end
-			for i,row in pairs(rows) do
-				local player = row.cols[2].value
-				if row.cols[1].value == 1 and not UnitIsUnit("player", player) then
-					SendChatMessage(strtrim(frame.tbWhisperBox:GetText()), "WHISPER", nil, row.cols[2].value);
-				end
-			end
-			frame.tbWhisperBox:SetText('')
-			frame.tbWhisperBox:ClearFocus()
-        end)
-        btnWhisper:SetPoint("TOPRIGHT",btnInvite,"TOPLEFT",-10,0)
-        btnWhisper:SetHeight(25)
-        btnWhisper:SetWidth(140)
-        btnWhisper:SetText(L["Whisper selected"])
-
-		local tbWhisperFrame = CreateFrame("Frame", nil, frame)
-		tbWhisperFrame:SetHeight(25)
-		tbWhisperFrame:SetWidth(270);
-		tbWhisperFrame:SetBackdrop({
-			bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-			edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-			tile = true, tileSize = 64, edgeSize = 12,
-			insets = { left = 2, right = 1, top = 2, bottom = 2 }
-		})
-		tbWhisperFrame:SetBackdropColor(0.2, 0.2, 0.2, 1)
-		tbWhisperFrame:SetBackdropBorderColor(1, 1, 1, 1)
-		tbWhisperFrame:SetPoint("TOPRIGHT",btnWhisper,"TOPLEFT",-10,-1)
-
-		local tbWhisperBox = CreateFrame("EditBox", nil, tbWhisperFrame)
-		local iGPManual = 0
-		tbWhisperBox:SetHistoryLines(1)
-		tbWhisperBox:SetMaxLetters(1000);
-		tbWhisperBox:SetAutoFocus(false)
-		tbWhisperBox:SetPoint("TOPLEFT",tbWhisperFrame,"TOPLEFT", 6, -1);
-		tbWhisperBox:SetPoint("BOTTOMRIGHT",tbWhisperFrame,"BOTTOMRIGHT", -6, 1);
-		tbWhisperBox:SetFontObject('GameFontHighlight')
-		tbWhisperBox:SetScript("OnEscapePressed", function() tbWhisperBox:ClearFocus() end)
-		tbWhisperBox:SetScript("OnEnterPressed", function() tbWhisperBox:ClearFocus() end)
-		tbWhisperBox:SetScript("OnEnter", function() end)
-		tbWhisperBox:SetScript("OnLeave", function() end)
-
-		tbWhisperBox:SetScript("OnEditFocusGained", function() tbWhisperBox:HighlightText(); CloseDropDownMenus(); end)
-		tbWhisperBox:SetScript("OnEditFocusLost", function()
-			tbWhisperBox:HighlightText(0,0)
-		end)
-		tbWhisperBox:SetScript("OnTextChanged", function() CloseDropDownMenus(); end)
-		frame.tbWhisperBox = tbWhisperBox;
-		frame.tbWhisperFrame = tbWhisperFrame;
-
         local dropdown = AceGUI:Create('Dropdown')
         dropdown.frame:SetParent(frame)
         dropdown.frame:SetPoint("TOPLEFT",frame,"TOPLEFT",10,-25)
         dropdown.frame:Show()
         dropdown:SetWidth(300)
-        dropdown:SetText(L['--==[    SELECT AN INSTANCE    ]==--        '])
+        dropdown:SetText('--==[    SELECT AN INSTANCE    ]==--        ')
 
         local header = AceGUI:Create("Dropdown-Item-Header")
-        header:SetText(L["Instances:"])
+        header:SetText("Instances:")
         header.SetValue = function() end
         dropdown.pullout:AddItem(header)
 
@@ -1872,7 +1516,7 @@ function LootMasterML:ShowRaidInfoLookup()
               if strsub(lookup,1,1) == '^' then
                 frame.lookup = instanceName .. lookup
               else
-                frame.lookup = lookup
+                frame.lookup = instanceName .. lookup
               end
             end)
             submenu:AddItem(btn1)
@@ -1913,7 +1557,7 @@ function LootMasterML:ShowRaidInfoLookup()
         btnGuild:SetPoint("TOPLEFT",dropdown.frame,"TOPRIGHT",10,0)
         btnGuild:SetHeight(25)
         btnGuild:SetWidth(60)
-        btnGuild:SetText(L["Guild"])
+        btnGuild:SetText("Guild")
 
         local btnRaid= CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
         btnRaid:SetScript("OnClick", function()
@@ -1927,7 +1571,7 @@ function LootMasterML:ShowRaidInfoLookup()
 
             frame.localInstanceID = GetLocalInstanceID(frame.lookup)
 
-            local num = GetNumGroupMembers()
+            local num = GetNumRaidMembers()
             if num>0 then
                 -- we're in raid
                 for i=1, num do
@@ -1936,7 +1580,7 @@ function LootMasterML:ShowRaidInfoLookup()
                 sstScroll:SetData( frame.rows )
                 self:SendCommand('GETRAIDINFO', frame.lookup, 'RAID')
             else
-                num = GetNumSubgroupMembers()
+                num = GetNumPartyMembers()
                 for i=1, num do
                     self:AddRaidInfoLookupMember(UnitName('party'..i))
                 end
@@ -1955,7 +1599,7 @@ function LootMasterML:ShowRaidInfoLookup()
         btnRaid:SetPoint("TOPLEFT",btnGuild,"TOPRIGHT",10,0)
         btnRaid:SetHeight(25)
         btnRaid:SetWidth(100)
-        btnRaid:SetText(L["Raid/Party"])
+        btnRaid:SetText("Raid/Party")
 
         local btnClose= CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
         btnClose:SetScript("OnClick", function()
@@ -1965,7 +1609,7 @@ function LootMasterML:ShowRaidInfoLookup()
         btnClose:SetPoint("TOP",btnRaid,"TOP",0,0)
         btnClose:SetHeight(25)
         btnClose:SetWidth(70)
-        btnClose:SetText(L["Close"])
+        btnClose:SetText("Close")
 
         self.raidinfoframe = frame;
     end

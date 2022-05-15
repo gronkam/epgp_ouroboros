@@ -28,9 +28,8 @@
 -- end
 -- @class file
 -- @name AceAddon-3.0.lua
--- @release $Id: AceAddon-3.0.lua 980 2010-10-27 14:20:11Z nevcairiel $
-
-local MAJOR, MINOR = "AceAddon-3.0", 10
+-- @release $Id: AceAddon-3.0.lua 777 2009-04-04 20:16:09Z nevcairiel $
+local MAJOR, MINOR = "AceAddon-3.0", 5
 local AceAddon, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not AceAddon then return end -- No Upgrade needed.
@@ -42,16 +41,9 @@ AceAddon.initializequeue = AceAddon.initializequeue or {} -- addons that are new
 AceAddon.enablequeue = AceAddon.enablequeue or {} -- addons that are initialized and waiting to be enabled
 AceAddon.embeds = AceAddon.embeds or setmetatable({}, {__index = function(tbl, key) tbl[key] = {} return tbl[key] end }) -- contains a list of libraries embedded in an addon
 
--- Lua APIs
-local tinsert, tconcat, tremove = table.insert, table.concat, table.remove
-local fmt, tostring = string.format, tostring
-local select, pairs, next, type, unpack = select, pairs, next, type, unpack
-local loadstring, assert, error = loadstring, assert, error
-local setmetatable, getmetatable, rawset, rawget = setmetatable, getmetatable, rawset, rawget
-
--- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
--- List them here for Mikk's FindGlobals script
--- GLOBALS: LibStub, IsLoggedIn, geterrorhandler
+local tinsert, tconcat = table.insert, table.concat
+local fmt = string.format
+local pairs, next, type = pairs, next, type
 
 --[[
 	 xpcall safecall implementation
@@ -153,7 +145,6 @@ function AceAddon:NewAddon(objectorname, ...)
 	setmetatable( object, addonmeta )
 	self.addons[name] = object
 	object.modules = {}
-	object.orderedModules = {}
 	object.defaultModuleLibraries = {}
 	Embed( object ) -- embed NewModule, GetModule methods
 	self:EmbedLibraries(object, select(i,...))
@@ -286,7 +277,6 @@ function NewModule(self, name, prototype, ...)
 	
 	safecall(self.OnModuleCreated, self, module) -- Was in Ace2 and I think it could be a cool thing to have handy.
 	self.modules[name] = module
-	tinsert(self.orderedModules, module)
 	
 	return module
 end
@@ -491,14 +481,12 @@ local pmixins = {
 -- target (object) - target object to embed aceaddon in
 --
 -- this is a local function specifically since it's meant to be only called internally
-function Embed(target, skipPMixins)
+function Embed(target)
 	for k, v in pairs(mixins) do
 		target[k] = v
 	end
-	if not skipPMixins then
-		for k, v in pairs(pmixins) do
-			target[k] = target[k] or v
-		end
+	for k, v in pairs(pmixins) do
+		target[k] = target[k] or v
 	end
 end
 
@@ -551,9 +539,8 @@ function AceAddon:EnableAddon(addon)
 		end
 	
 		-- enable possible modules.
-		local modules = addon.orderedModules
-		for i = 1, #modules do
-			self:EnableAddon(modules[i])
+		for name, module in pairs(addon.modules) do
+			self:EnableAddon(module)
 		end
 	end
 	return self.statuses[addon.name] -- return true if we're disabled
@@ -585,9 +572,8 @@ function AceAddon:DisableAddon(addon)
 			if lib then safecall(lib.OnEmbedDisable, lib, addon) end
 		end
 		-- disable possible modules.
-		local modules = addon.orderedModules
-		for i = 1, #modules do
-			self:DisableAddon(modules[i])
+		for name, module in pairs(addon.modules) do
+			self:DisableAddon(module)
 		end
 	end
 	
@@ -644,15 +630,5 @@ AceAddon.frame:SetScript("OnEvent", onEvent)
 
 -- upgrade embeded
 for name, addon in pairs(AceAddon.addons) do
-	Embed(addon, true)
-end
-
--- 2010-10-27 nevcairiel - add new "orderedModules" table
-if oldminor and oldminor < 10 then
-	for name, addon in pairs(AceAddon.addons) do
-		addon.orderedModules = {}
-		for module_name, module in pairs(addon.modules) do
-			tinsert(addon.orderedModules, module)
-		end
-	end
+	Embed(addon)
 end

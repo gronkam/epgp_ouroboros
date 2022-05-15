@@ -1,15 +1,14 @@
-## Interface: 50001
-## X-Min-Interface: 50000
-## Title: EPGP LootMaster Br - |cFFFF8080ML|r
-## Author: Jizar - Tol Barad
-## Version: 0.6.26
-## Notes: Somente usado para Mestre Saqueador, jogadore normais podem desativar esse addon sem problemas.
+## Interface: 30300
+## Title: EPGP LootMaster - |cFFFF8080ML|r
+## Author: Bushmaster-Twisting Nether-EU
+## Version: 0.4.7
+## Notes: Full loot distributing system for EPGP - Master Looter Stuff - Players can disable this safely.
 ## X-Category: Guild
 ## RequiredDeps: epgp_lootmaster
-## OptionalDeps: EPGP, HeadCount, HeadCount2, CT_RaidTracker, MizusRaidTracker
+## OptionalDeps: EPGP, CT_RaidTracker,CT RaidTracker 1.5 (modded by Eris)
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
-## X-Curse-Packaged-Version: 0.6.26
+## X-Curse-Packaged-Version: 0.4.7
 ## X-Curse-Project-Name: EPGPLootmaster
 ## X-Curse-Project-ID: epgp_lootmaster
 ## X-Curse-Repository-ID: wow/epgp_lootmaster/mainline

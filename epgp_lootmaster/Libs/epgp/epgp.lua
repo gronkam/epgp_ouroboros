@@ -207,7 +207,7 @@ local CUSTOM_ITEM_DATA = {
 }
 
 local GPTooltip = nil
-local GP = LibStub("LibGearPoints-1.2", true) -- Load this library silent
+local GP = LibStub("LibGearPoints-1.0", true) -- Load this library silent
 
 GetCustomSlotInfo = function(itemLink)
   if not itemLink then return end
@@ -233,7 +233,7 @@ GetGPValue = function (itemLink)
   if not itemLink then return end
 
   if GP and GP.GetValue then return GP:GetValue(itemLink) end
-  if EPGP then
+  if EPGP then    
     if not GPTooltip then GPTooltip = EPGP:GetModule("EPGP_GPTooltip", true) end
     if not GPTooltip then GPTooltip = EPGP:GetModule("gptooltip", true) end
     if GPTooltip and GPTooltip.GetGPValue then return GPTooltip:GetGPValue(itemLink) end

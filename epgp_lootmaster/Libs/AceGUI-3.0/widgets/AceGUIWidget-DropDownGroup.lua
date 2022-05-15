@@ -1,11 +1,5 @@
 local AceGUI = LibStub("AceGUI-3.0")
 
--- Lua APIs
-local assert, pairs, type = assert, pairs, type
-
--- WoW APIs
-local CreateFrame = CreateFrame
-
 --[[
 	Selection Group controls all have an interface to select a group for thier contents
 	None of them will auto size to thier contents, and should usually be used with a scrollframe
@@ -22,12 +16,11 @@ local CreateFrame = CreateFrame
 ]]
 do
 	local Type = "DropdownGroup"
-	local Version = 13
+	local Version = 11
 	
 	local function OnAcquire(self)
 		self.dropdown:SetText("")
 		self:SetDropdownWidth(200)
-		self:SetTitle("")
 	end
 	
 	local function OnRelease(self)
@@ -49,12 +42,6 @@ do
 	
 	local function SetTitle(self,title)
 		self.titletext:SetText(title)
-		self.dropdown.frame:ClearAllPoints()
-		if title and title ~= "" then
-			self.dropdown.frame:SetPoint("TOPRIGHT", self.frame, "TOPRIGHT", -2, 0)
-		else
-			self.dropdown.frame:SetPoint("TOPLEFT", self.frame, "TOPLEFT", -1, 0)
-	end
 	end
 	
 
@@ -133,31 +120,34 @@ do
 		self.frame = frame
 		frame.obj = self
 		
+		
 		frame:SetHeight(100)
 		frame:SetWidth(100)
 		frame:SetFrameStrata("FULLSCREEN_DIALOG")
 		
-		local titletext = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-		titletext:SetPoint("TOPLEFT", frame, "TOPLEFT", 4, -5)
-		titletext:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4, -5)
+		local titletext = frame:CreateFontString(nil,"OVERLAY","GameFontNormal")
+		titletext:SetPoint("TOPLEFT",frame,"TOPLEFT",4,0)
+		titletext:SetPoint("TOPRIGHT",frame,"TOPRIGHT",-4,0)
 		titletext:SetJustifyH("LEFT")
 		titletext:SetHeight(18)
+		
+		
 		self.titletext = titletext
 		
 		local dropdown = AceGUI:Create("Dropdown")
 		self.dropdown = dropdown
 		dropdown.frame:SetParent(frame)
-		dropdown.frame:SetFrameLevel(dropdown.frame:GetFrameLevel() + 2)
 		dropdown.parentgroup = self
 		dropdown:SetCallback("OnValueChanged",SelectedGroup)
-		dropdown.frame:SetPoint("TOPLEFT",frame,"TOPLEFT", -1, 0)
+		
+		dropdown.frame:SetPoint("TOPLEFT",titletext,"BOTTOMLEFT",-3,3)
 		dropdown.frame:Show()
 		dropdown:SetLabel("")
 		
 		local border = CreateFrame("Frame",nil,frame)
 		self.border = border
-		border:SetPoint("TOPLEFT",frame,"TOPLEFT",0,-26)
-		border:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",0,3)
+		border:SetPoint("TOPLEFT",frame,"TOPLEFT",3,-40)
+		border:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-3,3)
 		
 		border:SetBackdrop(PaneBackdrop)
 		border:SetBackdropColor(0.1,0.1,0.1,0.5)
