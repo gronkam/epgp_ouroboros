@@ -11,29 +11,29 @@ local Debug = LibStub("LibDebug-1.0")
 
 -- This is the high price equipslot multiplier.
 local EQUIPSLOT_MULTIPLIER_1 = {
-  INVTYPE_HEAD = 1,
-  INVTYPE_NECK = 0.5,
-  INVTYPE_SHOULDER = 0.75,
-  INVTYPE_CHEST = 1,
-  INVTYPE_ROBE = 1,
-  INVTYPE_WAIST = 0.75,
-  INVTYPE_LEGS = 1,
-  INVTYPE_FEET = 0.75,
-  INVTYPE_WRIST = 0.5,
-  INVTYPE_HAND = 0.75,
-  INVTYPE_FINGER = 0.5,
-  INVTYPE_TRINKET = 0.75,
-  INVTYPE_CLOAK = 0.5,
-  INVTYPE_WEAPON = 1.5,
-  INVTYPE_SHIELD = 1.5,
-  INVTYPE_2HWEAPON = 2,
-  INVTYPE_WEAPONMAINHAND = 1.5,
-  INVTYPE_WEAPONOFFHAND = 0.5,
-  INVTYPE_HOLDABLE = 0.5,
-  INVTYPE_RANGED = 1.5,
-  INVTYPE_RANGEDRIGHT = 1.5,
-  INVTYPE_THROWN = 0.5,
-  INVTYPE_RELIC = 0.5,
+  INVTYPE_HEAD = 83.4,
+  INVTYPE_NECK = 91.8,
+  INVTYPE_SHOULDER = 83.4,
+  INVTYPE_CHEST = 83.4,
+  INVTYPE_ROBE = 83.4,
+  INVTYPE_WAIST = 83.4,
+  INVTYPE_LEGS = 83.4,
+  INVTYPE_FEET = 83.4,
+  INVTYPE_WRIST = 83.4,
+  INVTYPE_HAND = 83.4,
+  INVTYPE_FINGER = 91.8,
+  INVTYPE_TRINKET = 125,
+  INVTYPE_CLOAK = 83.4,
+  INVTYPE_WEAPON = 83.4,
+  INVTYPE_SHIELD = 75,
+  INVTYPE_2HWEAPON = 100,
+  INVTYPE_WEAPONMAINHAND = 83.4,
+  INVTYPE_WEAPONOFFHAND = 83.4,
+  INVTYPE_HOLDABLE = 75,
+  INVTYPE_RANGED = 75,
+  INVTYPE_RANGEDRIGHT = 75,
+  INVTYPE_THROWN = 75,
+  INVTYPE_RELIC = 75,
   -- Hack for Tier 9 25M heroic tokens.
   INVTYPE_CUSTOM_MULTISLOT_TIER = 0.9,
 }
@@ -41,11 +41,16 @@ local EQUIPSLOT_MULTIPLIER_1 = {
 -- This is the low price equipslot multiplier (off hand weapons, non
 -- tanking shields).
 local EQUIPSLOT_MULTIPLIER_2 = {
-  INVTYPE_WEAPON = 0.5,
-  INVTYPE_SHIELD = 0.5,
-  INVTYPE_2HWEAPON = 1,
-  INVTYPE_RANGED = 0.5,
-  INVTYPE_RANGEDRIGHT = 0.5,
+  INVTYPE_2HWEAPON = 66.7,
+  INVTYPE_WEAPON = 100,
+  INVTYPE_SHIELD = 100,
+  INVTYPE_WEAPONMAINHAND = 100,
+  INVTYPE_WEAPONOFFHAND = 100,
+  INVTYPE_HOLDABLE = 100,
+  INVTYPE_RANGED = 100,
+  INVTYPE_RANGEDRIGHT = 100,
+  INVTYPE_THROWN = 100,
+  INVTYPE_RELIC = 100,
 }
 
 --Used to display GP values directly on tier tokens
@@ -68,21 +73,21 @@ local CUSTOM_ITEM_DATA = {
   [29767] = { 4, 120, "INVTYPE_LEGS" },
 
   -- Tier 5
-  [30236] = { 4, 133, "INVTYPE_CHEST" },
-  [30237] = { 4, 133, "INVTYPE_CHEST" },
-  [30238] = { 4, 133, "INVTYPE_CHEST" },
-  [30239] = { 4, 133, "INVTYPE_HAND" },
-  [30240] = { 4, 133, "INVTYPE_HAND" },
-  [30241] = { 4, 133, "INVTYPE_HAND" },
-  [30242] = { 4, 133, "INVTYPE_HEAD" },
-  [30243] = { 4, 133, "INVTYPE_HEAD" },
-  [30244] = { 4, 133, "INVTYPE_HEAD" },
-  [30245] = { 4, 133, "INVTYPE_LEGS" },
-  [30246] = { 4, 133, "INVTYPE_LEGS" },
-  [30247] = { 4, 133, "INVTYPE_LEGS" },
-  [30248] = { 4, 133, "INVTYPE_SHOULDER" },
-  [30249] = { 4, 133, "INVTYPE_SHOULDER" },
-  [30250] = { 4, 133, "INVTYPE_SHOULDER" },
+  [30236] = { 4, 287, "INVTYPE_CHEST" },
+  [30237] = { 4, 287, "INVTYPE_CHEST" },
+  [30238] = { 4, 287, "INVTYPE_CHEST" },
+  [30239] = { 4, 284, "INVTYPE_HAND" },
+  [30240] = { 4, 284, "INVTYPE_HAND" },
+  [30241] = { 4, 284, "INVTYPE_HAND" },
+  [30242] = { 4, 287, "INVTYPE_HEAD" },
+  [30243] = { 4, 287, "INVTYPE_HEAD" },
+  [30244] = { 4, 287, "INVTYPE_HEAD" },
+  [30245] = { 4, 287, "INVTYPE_LEGS" },
+  [30246] = { 4, 287, "INVTYPE_LEGS" },
+  [30247] = { 4, 287, "INVTYPE_LEGS" },
+  [30248] = { 4, 284, "INVTYPE_SHOULDER" },
+  [30249] = { 4, 284, "INVTYPE_SHOULDER" },
+  [30250] = { 4, 284, "INVTYPE_SHOULDER" },
 
   -- Tier 5 - BoE recipes - BoP crafts
   [30282] = { 4, 128, "INVTYPE_BOOTS" },
@@ -311,7 +316,7 @@ function lib:GetValue(item)
   if not slot_multiplier1 then
     return nil, nil, level, rarity, equipLoc
   end
-  local gp_base = 0.483 * 2 ^ (level/26 + (rarity - 4))
+  local gp_base = math.floor((2336-153*(level-250) + 2.75*(level-250)^2) / 100)
   local high = math.floor(gp_base * slot_multiplier1)
   local low = slot_multiplier2 and math.floor(gp_base * slot_multiplier2) or nil
   return high, low, level, rarity, equipLoc
