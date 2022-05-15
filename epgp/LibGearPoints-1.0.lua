@@ -53,6 +53,33 @@ local EQUIPSLOT_MULTIPLIER_2 = {
   INVTYPE_RELIC = 100,
 }
 
+local EQUIPSLOT_MULTIPLIER_297 = {
+  INVTYPE_HEAD = 0.7,
+  INVTYPE_NECK = 0.75,
+  INVTYPE_SHOULDER = 0.7,
+  INVTYPE_CHEST = 0.7,
+  INVTYPE_ROBE = 0.7,
+  INVTYPE_WAIST = 0.7,
+  INVTYPE_LEGS = 0.7,
+  INVTYPE_FEET = 0.7,
+  INVTYPE_WRIST = 0.7,
+  INVTYPE_HAND = 0.7,
+  INVTYPE_FINGER = 0.75,
+  INVTYPE_TRINKET = 0.9,
+  INVTYPE_CLOAK = 0.7,
+  INVTYPE_WEAPON = 0.65,
+  INVTYPE_SHIELD = 0.65,
+  INVTYPE_2HWEAPON = 0.8,
+  INVTYPE_WEAPONMAINHAND = 0.65,
+  INVTYPE_WEAPONOFFHAND = 0.6,
+  INVTYPE_HOLDABLE = 0.6,
+  INVTYPE_RANGED = 0.6,
+  INVTYPE_RANGEDRIGHT = 0.6,
+  INVTYPE_THROWN = 0.6,
+  INVTYPE_RELIC = 0.6,
+  INVTYPE_CUSTOM_MULTISLOT_TIER = 0.3,
+}
+
 --Used to display GP values directly on tier tokens
 local CUSTOM_ITEM_DATA = {
   -- Tier 4
@@ -235,6 +262,12 @@ local CUSTOM_ITEM_DATA = {
   [52028] = { 4, 279, "INVTYPE_CUSTOM_MULTISLOT_TIER" },
   [52029] = { 4, 279, "INVTYPE_CUSTOM_MULTISLOT_TIER" },
   [52030] = { 4, 279, "INVTYPE_CUSTOM_MULTISLOT_TIER" },
+
+  --T5.3 297
+  [280009] = { 4, 297, "INVTYPE_CUSTOM_MULTISLOT_TIER" },
+}
+
+local CUSTOM_ITEM_GPBASE = {
 }
 
 -- The default quality threshold:
@@ -319,5 +352,20 @@ function lib:GetValue(item)
   local gp_base = math.floor((2336-153*(level-250) + 2.75*(level-250)^2) / 100)
   local high = math.floor(gp_base * slot_multiplier1)
   local low = nil--slot_multiplier2 and math.floor(gp_base * slot_multiplier2) or nil
+
+  --exceptions
+  if level == 297 then
+    gp_base = 1000
+    high = gp_base * EQUIPSLOT_MULTIPLIER_297[equipLoc]
+    low = nil
+  end
+
+  if CUSTOM_ITEM_GPBASE[itemID] then
+    gp_base = unpack(CUSTOM_ITEM_GPBASE[itemID])
+    high = gp_base
+    low = nil
+  end
+  --end exceptions
+
   return high, low, level, rarity, equipLoc
 end
