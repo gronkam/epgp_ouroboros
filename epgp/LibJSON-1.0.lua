@@ -19,7 +19,6 @@ local NULL = LibJSON.NULL
 -- @usage LibJSON.Serialize(LibJSON.Null()) == "null"
 -- @usage LibJSON.Serialize({1, LibJSON.Null(), 3}) == "[1,null,3]"
 -- @return a proxy object
---ПРИВЕТ
 function LibJSON.Null()
     return NULL
 end
