@@ -53,6 +53,60 @@ local EQUIPSLOT_MULTIPLIER_2 = {
   INVTYPE_RELIC = 100,
 }
 
+local EQUIPSLOT_MULTIPLIER_277 = {
+  INVTYPE_HEAD = 0.25,
+  INVTYPE_NECK = 0.3,
+  INVTYPE_SHOULDER = 0.25,
+  INVTYPE_CHEST = 0.25,
+  INVTYPE_ROBE = 0.25,
+  INVTYPE_WAIST = 0.25,
+  INVTYPE_LEGS = 0.25,
+  INVTYPE_FEET = 0.25,
+  INVTYPE_WRIST = 0.25,
+  INVTYPE_HAND = 0.25,
+  INVTYPE_FINGER = 0.3,
+  INVTYPE_TRINKET = 0.25,
+  INVTYPE_CLOAK = 0.25,
+  INVTYPE_WEAPON = 0.25,
+  INVTYPE_SHIELD = 0.25,
+  INVTYPE_2HWEAPON = 0.4,
+  INVTYPE_WEAPONMAINHAND = 0.25,
+  INVTYPE_WEAPONOFFHAND = 0.25,
+  INVTYPE_HOLDABLE = 0.25,
+  INVTYPE_RANGED = 0.25,
+  INVTYPE_RANGEDRIGHT = 0.25,
+  INVTYPE_THROWN = 0.25,
+  INVTYPE_RELIC = 0.25,
+  INVTYPE_CUSTOM_MULTISLOT_TIER = 0.3,
+}
+
+local EQUIPSLOT_MULTIPLIER_284 = {
+  INVTYPE_HEAD = 0.4,
+  INVTYPE_NECK = 0.425,
+  INVTYPE_SHOULDER = 0.4,
+  INVTYPE_CHEST = 0.4,
+  INVTYPE_ROBE = 0.4,
+  INVTYPE_WAIST = 0.4,
+  INVTYPE_LEGS = 0.4,
+  INVTYPE_FEET = 0.4,
+  INVTYPE_WRIST = 0.4,
+  INVTYPE_HAND = 0.4,
+  INVTYPE_FINGER = 0.425,
+  INVTYPE_TRINKET = 0.525,
+  INVTYPE_CLOAK = 0.4,
+  INVTYPE_WEAPON = 0.4,
+  INVTYPE_SHIELD = 0.4,
+  INVTYPE_2HWEAPON = 0.5,
+  INVTYPE_WEAPONMAINHAND = 0.4,
+  INVTYPE_WEAPONOFFHAND = 0.4,
+  INVTYPE_HOLDABLE = 0.4,
+  INVTYPE_RANGED = 0.4,
+  INVTYPE_RANGEDRIGHT = 0.4,
+  INVTYPE_THROWN = 0.4,
+  INVTYPE_RELIC = 0.4,
+  INVTYPE_CUSTOM_MULTISLOT_TIER = 0.3,
+}
+
 local EQUIPSLOT_MULTIPLIER_297 = {
   INVTYPE_HEAD = 0.7,
   INVTYPE_NECK = 0.75,
@@ -77,7 +131,7 @@ local EQUIPSLOT_MULTIPLIER_297 = {
   INVTYPE_RANGEDRIGHT = 0.6,
   INVTYPE_THROWN = 0.6,
   INVTYPE_RELIC = 0.6,
-  INVTYPE_CUSTOM_MULTISLOT_TIER = 0.3,
+  INVTYPE_CUSTOM_MULTISLOT_TIER = 0.5,
 }
 
 --Used to display GP values directly on tier tokens
@@ -165,9 +219,6 @@ local CUSTOM_ITEM_DATA = {
   -- Magtheridon's Head
   [32385] = { 4, 125, "INVTYPE_FINGER" },
   [32386] = { 4, 125, "INVTYPE_FINGER" },
-
-  -- Kael'thas' Sphere
-  [32405] = { 4, 138, "INVTYPE_NECK" },
 
   -- T7
   [40610] = { 4, 200, "INVTYPE_CHEST" },
@@ -265,9 +316,83 @@ local CUSTOM_ITEM_DATA = {
 
   --T5.3 297
   [280009] = { 4, 297, "INVTYPE_CUSTOM_MULTISLOT_TIER" },
+
+  --T5.2 290
+  [280006] = { 4, 433.4, "INVTYPE_CUSTOM_MULTISLOT_TIER" },
 }
 
 local CUSTOM_ITEM_GPBASE = {
+  -- Kael'thas' Sphere
+  [32405] = { 500 },
+
+  -- Sky Flare
+  [151378] = { 1000 },
+
+  -- Сердце ярости
+  [65072] = { 500 },
+
+  -- Червь-симбиот
+  [65048] = { 625 },
+
+  -- Поступь смерти
+  [65124] = { 625 },
+
+  -- Флакончик
+  [65029] = { 500 },
+
+  -- Зеркало
+  [65105] = { 625 },
+
+  -- Осколок горя
+  [60233] = { 500 },
+
+  -- Средоточие спелости
+  [58184] = { 625 },
+
+  -- Юношеская горячность
+  [68712] = { 625 },
+
+  -- Фиал теней
+  [77999] = { 625 },
+
+  -- Циклон
+  [65140] = { 625 },
+
+  -- Сокрушительный груз
+  [65118] = { 625 },
+
+  -- Вместилище души
+  [58183] = { 625 },
+
+  -- Чешуя мили
+  [54590] = { 625 },
+
+  -- Чешуя рдд
+  [54588] = { 625 },
+
+  -- Чешуя танк
+  [54591] = { 500 },
+
+  -- Чешуя хил
+  [54589] = { 625 },
+
+  -- Основа посоха
+  [430] = { 500},
+
+  -- Воля гер
+  [50363] = { 375 },
+
+  -- Объект гер
+  [50348] = { 375 },
+
+  -- Клык синдры (гер)
+  [50364] = { 375 },
+
+  -- Колба (гер)
+  [50706] = { 375 },
+
+  -- Талик с синдры (гер)
+  [50365] = { 375 },
 }
 
 -- The default quality threshold:
@@ -353,8 +478,16 @@ function lib:GetValue(item)
   local high = math.floor(gp_base * slot_multiplier1)
   local low = nil--slot_multiplier2 and math.floor(gp_base * slot_multiplier2) or nil
 
-  --exceptions
-  if level == 297 then
+   --exceptions
+  if level == 277 then
+    gp_base = 1000
+    high = gp_base * EQUIPSLOT_MULTIPLIER_277[equipLoc]
+    low = nil
+  elseif level == 284 then
+    gp_base = 1000
+    high = gp_base * EQUIPSLOT_MULTIPLIER_284[equipLoc]
+    low = nil
+  elseif level == 297 then
     gp_base = 1000
     high = gp_base * EQUIPSLOT_MULTIPLIER_297[equipLoc]
     low = nil
